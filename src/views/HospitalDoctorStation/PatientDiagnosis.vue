@@ -44,17 +44,25 @@
                       <option value="other">其他诊断</option>
                   </select>
                 </div>
-                <div class="mb-3">
-                  <label for="diseaseId" class="form-label">疾病ID</label>
-                  <input type="number" class="form-control" id="diseaseId" v-model.number="currentDiagnosis.diseaseId" required placeholder="请输入疾病ID">
-                   <div class="form-text">由于缺少疾病搜索接口，请手动输入疾病ID。</div>
+                <!-- 疾病名称搜索 -->
+                <div class="mb-3 position-relative">
+                  <label for="diseaseName" class="form-label">疾病名称</label>
+                  <input type="text" class="form-control" id="diseaseName" v-model="diseaseSearchQuery" 
+                         @input="debouncedSearchDisease" autocomplete="off" placeholder="输入疾病名称进行搜索...">
+                  <!-- 搜索结果列表 -->
+                  <div v-if="diseaseSearchResults.length > 0" class="list-group position-absolute w-100" style="z-index: 1000;">
+                    <button v-for="disease in diseaseSearchResults" :key="disease.id" type="button" 
+                            class="list-group-item list-group-item-action" @click="selectDisease(disease)">
+                      {{ disease.diseaseName }} ({{ disease.diseaseICD }})
+                    </button>
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="orderTime" class="form-label">诊断时间</label>
                   <input type="datetime-local" class="form-control" id="orderTime" v-model="currentDiagnosis.orderTime" required>
                 </div>
                 <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-primary">保存诊断</button>
+                  <button type="submit" class="btn btn-primary" :disabled="!currentDiagnosis.diseaseId">保存诊断</button>
                 </div>
               </form>
             </div>
@@ -66,9 +74,9 @@
 </template>
 
 <script>
-import * as diagnosisApi from '@/api/diagnosis.js'
-// 关键修改点1：引入获取入院患者列表的API
-import * as patientOrdersApi from '@/api/patientOrders.js'
+import * as diagnosisApi from '@/api/diagnosis.js';
+import * as patientOrdersApi from '@/api/patientOrders.js';
+import _ from 'lodash';
 
 export default {
   name: 'PatientDiagnosis',
@@ -78,15 +86,16 @@ export default {
       selectedPatient: null,
       currentDiagnosis: {
         patientId: null,
-        diseaseId: null,
+        diseaseId: null, // 将通过搜索选择来填充
         orderTime: this.getCurrentDateTime(),
         diseaseType: 'main'
-      }
-    }
+      },
+      diseaseSearchQuery: '',
+      diseaseSearchResults: [],
+    };
   },
   mounted() {
-    // 关键修改点3：调用新的方法获取患者列表
-    this.fetchPatients()
+    this.fetchPatients();
   },
   methods: {
     getCurrentDateTime() {
@@ -94,68 +103,83 @@ export default {
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       return now.toISOString().slice(0, 16);
     },
-    // 关键修改点2：修改方法，调用正确的API
     async fetchPatients() {
       try {
-        // 不再调用 diagnosisApi.getUndiagnosedPatients()
-        // 而是调用 patientOrdersApi.getAdmittedPatientsForOrders()
-        const response = await patientOrdersApi.getAdmittedPatientsForOrders()
-        // 接口文档显示 /hospital/medOrder/select 返回的数据在 response.data.data
-        this.patients = response.data.data 
+        const response = await patientOrdersApi.getAdmittedPatientsForOrders();
+        this.patients = response.data.data;
       } catch (error) {
-        console.error('获取患者列表失败:', error)
+        console.error('获取患者列表失败:', error);
       }
     },
     selectPatient(patient) {
-      this.selectedPatient = patient
-      this.resetCurrentDiagnosis()
+      this.selectedPatient = patient;
+      this.resetCurrentDiagnosis();
+    },
+    // 使用 debounce 防止频繁的API调用
+    debouncedSearchDisease: _.debounce(function() {
+      this.searchDiseases();
+    }, 300),
+    async searchDiseases() {
+      if (this.diseaseSearchQuery.length < 1) {
+        this.diseaseSearchResults = [];
+        return;
+      }
+      try {
+        // 假设使用 main 接口进行搜索，可以根据业务调整
+        const response = await diagnosisApi.getUndiagnosedPatients({ diseaseName: this.diseaseSearchQuery });
+        this.diseaseSearchResults = response.data.data.rows;
+      } catch (error) {
+        console.error('搜索疾病失败:', error);
+        this.diseaseSearchResults = [];
+      }
+    },
+    // 当用户从列表中选择一个疾病时
+    selectDisease(disease) {
+      this.currentDiagnosis.diseaseId = disease.id;
+      this.diseaseSearchQuery = disease.diseaseName; // 在输入框中显示选定的疾病名称
+      this.diseaseSearchResults = []; // 清空搜索结果
     },
     async saveCurrentDiagnosis() {
-      if (!this.selectedPatient) {
-        alert('请先选择一位患者')
-        return
+      if (!this.selectedPatient || !this.currentDiagnosis.diseaseId) {
+        alert('请先选择一位患者并选择一个诊断疾病');
+        return;
       }
       
-      // patientId应该从选中的患者中获取
-      const payload = {
-        ...this.currentDiagnosis,
-        patientId: this.selectedPatient.id
-      };
+      const payload = { ...this.currentDiagnosis, patientId: this.selectedPatient.id };
       
-      // diseaseType在v-model中已经绑定，无需再从payload中取
       const apiCallMap = {
         admission: diagnosisApi.saveAdmissionDiagnosis,
         main: diagnosisApi.saveMainDiagnosis,
-        other: diagnosisApi.saveOtherDiagnosis
+        other: diagnosisApi.saveOtherDiagnosis,
       };
 
       const apiCall = apiCallMap[this.currentDiagnosis.diseaseType];
-
       if (!apiCall) {
         alert('未知的诊断类型');
         return;
       }
-      
+
       try {
         await apiCall(payload);
-        alert('诊断信息保存成功！')
-        // 诊断成功后不清空已选患者，但重置表单
-        this.resetCurrentDiagnosis() 
+        alert('诊断信息保存成功！');
+        this.resetCurrentDiagnosis();
       } catch (error) {
-        console.error('保存诊断信息失败:', error)
-        alert('保存诊断信息失败')
+        console.error('保存诊断信息失败:', error);
+        alert('保存诊断信息失败');
       }
     },
     resetCurrentDiagnosis() {
-        this.currentDiagnosis = {
-            patientId: this.selectedPatient ? this.selectedPatient.id : null,
-            diseaseId: null,
-            orderTime: this.getCurrentDateTime(),
-            diseaseType: 'main'
-        }
-    }
-  }
-}
+      this.currentDiagnosis = {
+        patientId: this.selectedPatient ? this.selectedPatient.id : null,
+        diseaseId: null,
+        orderTime: this.getCurrentDateTime(),
+        diseaseType: 'main'
+      };
+      this.diseaseSearchQuery = '';
+      this.diseaseSearchResults = [];
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -163,6 +187,6 @@ export default {
   padding: 20px;
 }
 .list-group-item-action {
-    cursor: pointer;
+  cursor: pointer;
 }
 </style>

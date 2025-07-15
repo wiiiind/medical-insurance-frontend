@@ -1,7 +1,10 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">医保报销系统</a>
+      <!-- 侧边栏切换按钮 -->
+      <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#" @click.prevent="toggleSidebar">
+        <span data-feather="menu" class="me-2"></span>医保报销系统
+      </a>
       <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -9,9 +12,11 @@
 
     <div class="container-fluid">
       <div class="row">
-        <AppSidebar />
+        <!-- 传递 collapsed 状态到侧边栏组件 -->
+        <AppSidebar :collapsed="isSidebarCollapsed" />
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <!-- 根据侧边栏状态动态调整主内容区的 class -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
           <router-view />
         </main>
       </div>
@@ -21,11 +26,32 @@
 
 <script>
 import AppSidebar from './components/AppSidebar.vue'
+import feather from 'feather-icons'
 
 export default {
   name: 'App',
   components: {
     AppSidebar
+  },
+  data() {
+    return {
+      // 侧边栏伸缩状态
+      isSidebarCollapsed: false
+    }
+  },
+  mounted() {
+    // 渲染图标
+    feather.replace()
+  },
+  updated() {
+    // 视图更新后再次渲染图标
+    feather.replace()
+  },
+  methods: {
+    // 切换侧边栏状态的方法
+    toggleSidebar() {
+      this.isSidebarCollapsed = !this.isSidebarCollapsed
+    }
   }
 }
 </script>
@@ -118,5 +144,18 @@ body {
 .form-control-dark:focus {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+
+.main-content {
+  transition: margin-left .3s;
+}
+
+/* 当侧边栏收缩时，主内容区的左边距变小 */
+.main-content.sidebar-collapsed {
+  margin-left: 60px !important;
+}
+
+.navbar-brand {
+  cursor: pointer;
 }
 </style>
