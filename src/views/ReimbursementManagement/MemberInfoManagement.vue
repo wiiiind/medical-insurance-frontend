@@ -1,62 +1,145 @@
 <template>
-  <div class="member-info-management">
-    <h2>参保人员信息管理</h2>
-    <p>这里将展示参保人员信息的表格，并提供增删改查功能。</p>
+  <div class="member-info-management p-4">
+    <h2 class="mb-4">参保人员信息管理</h2>
+
+    <!-- 搜索区域 -->
+    <div class="row g-3 align-items-center mb-3">
+      <div class="col-auto">
+        <input type="text" class="form-control" v-model="searchQuery.realName" placeholder="请输入姓名" @keyup.enter="handleSearch">
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" @click="handleSearch">搜索</button>
+      </div>
+    </div>
+
     <!-- 参保人员信息表格 -->
-    <table class="table table-striped">
-      <thead>
+    <table class="table table-striped table-hover">
+      <thead class="table-light">
         <tr>
           <th>#</th>
           <th>姓名</th>
+          <th>性别</th>
           <th>身份证号</th>
-          <th>参保类型</th>
-          <th>状态</th>
-          <th>操作</th>
+          <th>出生日期</th>
+          <th>家庭住址</th>
+          <th>最近就诊日期</th>
         </tr>
       </thead>
       <tbody>
-        <!-- 示例数据 -->
-        <tr>
-          <td>1</td>
-          <td>张三</td>
-          <td>123456789012345678</td>
-          <td>医保</td>
-          <td>在职</td>
-          <td>
-            <button class="btn btn-sm btn-primary me-2">修改</button>
-            <button class="btn btn-sm btn-danger">删除</button>
-          </td>
+        <tr v-if="loading">
+          <td colspan="7" class="text-center">加载中...</td>
         </tr>
-        <tr>
-          <td>2</td>
-          <td>李四</td>
-          <td>876543210987654321</td>
-          <td>自费</td>
-          <td>退休</td>
-          <td>
-            <button class="btn btn-sm btn-primary me-2">修改</button>
-            <button class="btn btn-sm btn-danger">删除</button>
-          </td>
+        <tr v-else-if="members.length === 0">
+          <td colspan="7" class="text-center">没有找到相关数据</td>
+        </tr>
+        <tr v-for="(member, index) in members" :key="member.id">
+          <td>{{ (pagination.page - 1) * pagination.pageSize + index + 1 }}</td>
+          <td>{{ member.realName }}</td>
+          <td>{{ member.gender }}</td>
+          <td>{{ member.cardNumber }}</td>
+          <td>{{ member.birthday }}</td>
+          <td>{{ member.homeAddress }}</td>
+          <td>{{ member.visitDate }}</td>
         </tr>
       </tbody>
     </table>
 
-    <!-- 增删改查按钮 -->
-    <div class="mt-3">
-      <button class="btn btn-success me-2">新增人员</button>
-      <button class="btn btn-info">刷新</button>
-    </div>
+    <!-- 分页 -->
+    <nav v-if="pagination.total > 0">
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: pagination.page <= 1 }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.page - 1)">上一页</a>
+        </li>
+        <li class="page-item" v-for="page in pages" :key="page" :class="{ active: page === pagination.page }">
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: pagination.page >= totalPages }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.page + 1)">下一页</a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
 <script>
+import { getMemberList } from '@/api/reimbursement';
+
 export default {
-  name: 'MemberInfoManagement'
+  name: 'MemberInfoManagement',
+  data() {
+    return {
+      loading: false,
+      members: [],
+      searchQuery: {
+        realName: ''
+      },
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: 0
+      }
+    };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.pagination.total / this.pagination.pageSize);
+    },
+    pages() {
+      const pages = [];
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
+  },
+  created() {
+    this.fetchMembers();
+  },
+  methods: {
+    async fetchMembers() {
+      this.loading = true;
+      try {
+        const params = {
+          page: this.pagination.page,
+          pageSize: this.pagination.pageSize,
+          realName: this.searchQuery.realName || undefined
+        };
+        const response = await getMemberList(params);
+        if (response.data && response.data.data) {
+          this.members = response.data.data.rows;
+          this.pagination.total = response.data.data.total;
+        } else {
+          this.members = [];
+          this.pagination.total = 0;
+          console.error('获取数据失败:', response.data.msg || '响应中没有data字段');
+        }
+      } catch (error) {
+        console.error('请求异常:', error);
+        this.members = [];
+        this.pagination.total = 0;
+      } finally {
+        this.loading = false;
+      }
+    },
+    handleSearch() {
+      this.pagination.page = 1;
+      this.fetchMembers();
+    },
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.pagination.page = page;
+        this.fetchMembers();
+      }
+    }
+  }
 }
 </script>
 
 <style scoped>
 .member-info-management {
   padding: 20px;
+}
+.pagination {
+  justify-content: flex-end;
 }
 </style>
