@@ -5,8 +5,12 @@
     <!-- 功能按钮和搜索 -->
     <div class="d-flex justify-content-between mb-3">
       <div>
-        <button class="btn btn-success" @click="showAddModal">
+        <button class="btn btn-success me-2" @click="showAddModal">
           <i class="bi bi-plus-circle me-2"></i>新增药品
+        </button>
+        <!-- 关键修改：新增批量删除按钮 -->
+        <button class="btn btn-danger" @click="deleteSelectedDrugs" :disabled="selectedDrugIds.length === 0">
+          <i class="bi bi-trash-fill me-2"></i>批量删除
         </button>
       </div>
       <div class="d-flex">
@@ -20,8 +24,9 @@
       <table class="table table-striped table-hover">
         <thead class="table-light">
           <tr>
-            <th>
-              <input class="form-check-input" type="checkbox" value="">
+            <th style="width: 5%;">
+              <!-- 关键修改：绑定全选事件和状态 -->
+              <input class="form-check-input" type="checkbox" @change="toggleSelectAll" :checked="isAllSelected">
             </th>
             <th>医保类型</th>
             <th>中文名称</th>
@@ -31,7 +36,7 @@
             <th>生产企业</th>
             <th>价格</th>
             <th>备注</th>
-            <th class="text-center">操作</th>
+            <th class="text-center" style="width: 12%;">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +45,8 @@
           </tr>
           <tr v-for="drug in drugs" :key="drug.id">
             <td>
-              <input class="form-check-input" type="checkbox" :value="drug.id">
+              <!-- 关键修改：绑定单个复选框的状态 -->
+              <input class="form-check-input" type="checkbox" :value="drug.id" v-model="selectedDrugIds">
             </td>
             <td>{{ drug.insuranceType }}</td>
             <td>{{ drug.chinaName }}</td>
@@ -52,7 +58,7 @@
             <td>{{ drug.remarks }}</td>
             <td class="text-center">
               <button class="btn btn-sm btn-outline-primary me-2" @click="editDrug(drug)">编辑</button>
-              <button class="btn btn-sm btn-outline-danger" @click="deleteDrug(drug.id)">删除</button>
+              <button class="btn btn-sm btn-outline-danger" @click="deleteSingleDrug(drug.id)">删除</button>
             </td>
           </tr>
         </tbody>
@@ -144,6 +150,7 @@ export default {
   data() {
     return {
       drugs: [],
+      selectedDrugIds: [],
       currentDrug: {
         id: null,
         insuranceType: '',
@@ -166,6 +173,9 @@ export default {
     }
   },
   computed: {
+    isAllSelected() {
+      return this.drugs.length > 0 && this.selectedDrugIds.length === this.drugs.length;
+    },
     totalPages() {
       return Math.ceil(this.pagination.total / this.pagination.pageSize)
     },
@@ -191,11 +201,23 @@ export default {
       }
     }
   },
+  watch: {
+    'pagination.currentPage'() {
+        this.selectedDrugIds = [];
+    }  
+  },
   mounted() {
     this.fetchDrugs()
     this.drugModal = new Modal(document.getElementById('drugModal'))
   },
   methods: {
+    toggleSelectAll(event) {
+      if (event.target.checked) {
+        this.selectedDrugIds = this.drugs.map(d => d.id);
+      } else {
+        this.selectedDrugIds = [];
+      }
+    },
     async fetchDrugs() {
       try {
         const params = {
@@ -206,6 +228,7 @@ export default {
         const response = await drugApi.getDrugs(params)
         this.drugs = response.data.data.rows
         this.pagination.total = response.data.data.total
+        this.selectedDrugIds = [];
       } catch (error) {
         console.error('获取药品数据失败:', error)
         alert('获取药品数据失败')
@@ -238,7 +261,7 @@ export default {
         this.drugModal.show()
       } catch (error) {
         console.error('获取药品详情失败:', error)
-        alert('获取药品详情失败')
+        alert('���取药品详情失败')
       }
     },
     async saveDrug() {
@@ -255,10 +278,17 @@ export default {
         alert('保存药品失败')
       }
     },
-    async deleteDrug(id) {
-      if (confirm('确定要删除该药品吗？')) {
+    async deleteSingleDrug(id) {
+        this.deleteDrugs([id]);
+    },
+    async deleteSelectedDrugs() {
+        this.deleteDrugs(this.selectedDrugIds);
+    },
+    async deleteDrugs(ids) {
+      if (ids.length === 0) return;
+      if (confirm(`确定要删除选中的 ${ids.length} 项药品吗？`)) {
         try {
-          await drugApi.deleteDrugs([id])
+          await drugApi.deleteDrugs(ids)
           this.fetchDrugs()
         } catch (error) {
           console.error('删除药品失败:', error)
@@ -279,5 +309,20 @@ export default {
 <style scoped>
 .drug-maintenance {
   padding: 20px;
+}
+
+/* 关键修复：优化表格布局 */
+.table-responsive .table {
+  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-responsive .table th,
+.table-responsive .table td {
+  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
+  word-wrap: break-word; 
+  /* 垂直居中对齐，更美观 */
+  vertical-align: middle; 
 }
 </style>

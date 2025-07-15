@@ -3,8 +3,8 @@
     <h2 class="mb-4">患者诊断</h2>
 
     <div class="row">
-      <!-- Patient List -->
-      <div class="col-md-4">
+      <!-- 分栏已调整为 col-md-3 -->
+      <div class="col-md-3">
         <div class="card">
           <div class="card-header">
             已入院患者列表
@@ -23,8 +23,8 @@
         </div>
       </div>
 
-      <!-- Diagnosis Info -->
-      <div class="col-md-8">
+      <!-- 分栏已调整为 col-md-9 -->
+      <div class="col-md-9">
         <div class="card">
           <div class="card-header">
             诊断信息
@@ -44,23 +44,28 @@
                       <option value="other">其他诊断</option>
                   </select>
                 </div>
-                <!-- 疾病名称搜索 -->
+
+                <!-- 疾病名称搜索 (已集成滚动条功能) -->
                 <div class="mb-3 position-relative">
                   <label for="diseaseName" class="form-label">疾病名称</label>
                   <input type="text" class="form-control" id="diseaseName" v-model="diseaseSearchQuery" 
-                         @input="debouncedSearchDisease" autocomplete="off" placeholder="输入疾病名称进行搜索...">
-                  <!-- 搜索结果列表 -->
-                  <div v-if="diseaseSearchResults.length > 0" class="list-group position-absolute w-100" style="z-index: 1000;">
+                         @input="debouncedSearchDisease" @blur="hideSearchResults" autocomplete="off" placeholder="输入疾病名称进行搜索...">
+                  
+                  <div v-if="diseaseSearchResults.length > 0 && showResults" 
+                       class="list-group position-absolute w-100 search-results-container" 
+                       style="z-index: 1000;">
                     <button v-for="disease in diseaseSearchResults" :key="disease.id" type="button" 
-                            class="list-group-item list-group-item-action" @click="selectDisease(disease)">
+                            class="list-group-item list-group-item-action" @mousedown="selectDisease(disease)">
                       {{ disease.diseaseName }} ({{ disease.diseaseICD }})
                     </button>
                   </div>
                 </div>
+
                 <div class="mb-3">
                   <label for="orderTime" class="form-label">诊断时间</label>
                   <input type="datetime-local" class="form-control" id="orderTime" v-model="currentDiagnosis.orderTime" required>
                 </div>
+
                 <div class="d-flex justify-content-end">
                   <button type="submit" class="btn btn-primary" :disabled="!currentDiagnosis.diseaseId">保存诊断</button>
                 </div>
@@ -92,6 +97,7 @@ export default {
       },
       diseaseSearchQuery: '',
       diseaseSearchResults: [],
+      showResults: false, // 新增状态，控制结果列表的显示
     };
   },
   mounted() {
@@ -121,21 +127,29 @@ export default {
     async searchDiseases() {
       if (this.diseaseSearchQuery.length < 1) {
         this.diseaseSearchResults = [];
+        this.showResults = false;
         return;
       }
       try {
-        // 关键修改：调用新的 searchDiseases 方法
+        // 调用指向 /other 的 API
         const response = await diagnosisApi.searchDiseases({ diseaseName: this.diseaseSearchQuery });
         this.diseaseSearchResults = response.data.data.rows;
+        this.showResults = true;
       } catch (error) {
         console.error('搜索疾病失败:', error);
         this.diseaseSearchResults = [];
+        this.showResults = false;
       }
     },
     selectDisease(disease) {
       this.currentDiagnosis.diseaseId = disease.id;
       this.diseaseSearchQuery = disease.diseaseName;
-      this.diseaseSearchResults = [];
+      this.showResults = false;
+    },
+    hideSearchResults() {
+      setTimeout(() => {
+        this.showResults = false;
+      }, 150);
     },
     async saveCurrentDiagnosis() {
       if (!this.selectedPatient || !this.currentDiagnosis.diseaseId) {
@@ -175,6 +189,7 @@ export default {
       };
       this.diseaseSearchQuery = '';
       this.diseaseSearchResults = [];
+      this.showResults = false;
     },
   },
 };
@@ -186,5 +201,13 @@ export default {
 }
 .list-group-item-action {
   cursor: pointer;
+}
+
+/* 为搜索结果容器添加滚动条样式 */
+.search-results-container {
+  max-height: 240px; 
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: .25rem;
 }
 </style>

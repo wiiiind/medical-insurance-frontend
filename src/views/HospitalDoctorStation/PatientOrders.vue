@@ -3,8 +3,8 @@
     <h2 class="mb-4">患者医嘱管理</h2>
 
     <div class="row">
-      <!-- Patient List -->
-      <div class="col-md-4">
+      <!-- 关键修改：将分栏从 col-md-4 改为 col-md-3，使其变窄 -->
+      <div class="col-md-3">
         <div class="card">
           <div class="card-header">
             已入院患者列表
@@ -23,8 +23,8 @@
         </div>
       </div>
 
-      <!-- Orders Section -->
-      <div class="col-md-8">
+      <!-- 关键修改：将分栏从 col-md-8 改为 col-md-9，使其变宽以填��空间 -->
+      <div class="col-md-9">
         <div class="card">
           <div class="card-header">
             医嘱详情
@@ -266,5 +266,20 @@ export default {
 }
 .list-group-item-action {
     cursor: pointer;
+}
+
+/* 关键修复：优化表格布局 */
+.table-responsive .table {
+  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-responsive .table th,
+.table-responsive .table td {
+  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
+  word-wrap: break-word; 
+  /* 垂直居中对齐，更美观 */
+  vertical-align: middle; 
 }
 </style>

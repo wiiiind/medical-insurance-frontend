@@ -50,14 +50,24 @@
               <label for="visitDate" class="form-label">入院日期</label>
               <input type="date" class="form-control" id="visitDate" v-model="admissionForm.visitDate" required>
             </div>
+            <!-- 关键修改 1: "登记方式" 改为 "结算类别" -->
             <div class="col-md-6 mb-3">
-              <label for="registMethod" class="form-label">登记方式</label>
-              <input type="text" class="form-control" id="registMethod" v-model="admissionForm.registMethod">
+              <label for="registMethod" class="form-label">结算类别</label>
+              <!-- 
+                将输入框改为选择框，提供“自费”和“医保”两个选项。
+                v-model 仍然绑定到 admissionForm.registMethod，接口字段名不变。
+              -->
+              <select class="form-select" id="registMethod" v-model="admissionForm.registMethod">
+                <option value="自费">自费</option>
+                <option value="医保">医保</option>
+              </select>
             </div>
           </div>
           <div class="row">
-             <div class="col-md-6 mb-3">
-              <label for="caseNumber" class="form-label">病历号</label>
+             <!-- 关键修改 2: "病历号" 改为 "住院号" -->
+            <div class="col-md-6 mb-3">
+              <label for="caseNumber" class="form-label">住院号</label>
+              <!-- v-model 仍然绑定到 admissionForm.caseNumber，接口字段名不变。 -->
               <input type="text" class="form-control" id="caseNumber" v-model="admissionForm.caseNumber">
             </div>
             <div class="col-md-6 mb-3">
@@ -90,8 +100,9 @@ export default {
         age: null,
         ageType: '岁',
         homeAddress: '',
-        visitDate: new Date().toISOString().slice(0, 10), // Defaults to today
-        registMethod: '窗口'
+        visitDate: new Date().toISOString().slice(0, 10),
+        // 将 registMethod 的默认值改为更符合业务的选项
+        registMethod: '医保' 
       }
     }
   },
@@ -103,7 +114,7 @@ export default {
         this.resetForm()
       } catch (error) {
         console.error('入院登记失败:', error)
-        alert('入院登记失败，请检查输入信���。')
+        alert('入院登记失败，请检查输入信息。')
       }
     },
     resetForm() {
@@ -117,7 +128,7 @@ export default {
         ageType: '岁',
         homeAddress: '',
         visitDate: new Date().toISOString().slice(0, 10),
-        registMethod: '窗口'
+        registMethod: '医保'
       }
     }
   }

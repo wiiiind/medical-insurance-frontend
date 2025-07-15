@@ -5,8 +5,11 @@
     <!-- 功能按钮和搜索 -->
     <div class="d-flex justify-content-between mb-3">
       <div>
-        <button class="btn btn-success" @click="showAddModal">
+        <button class="btn btn-success me-2" @click="showAddModal">
           <i class="bi bi-plus-circle me-2"></i>新增项目
+        </button>
+        <button class="btn btn-danger" @click="deleteSelectedItems" :disabled="selectedItemIds.length === 0">
+          <i class="bi bi-trash-fill me-2"></i>批量删除
         </button>
       </div>
       <div class="d-flex">
@@ -20,8 +23,8 @@
       <table class="table table-striped table-hover">
         <thead class="table-light">
           <tr>
-            <th>
-              <input class="form-check-input" type="checkbox">
+            <th style="width: 5%;">
+              <input class="form-check-input" type="checkbox" @change="toggleSelectAll" :checked="isAllSelected">
             </th>
             <th>医疗类型</th>
             <th>医疗编号</th>
@@ -32,7 +35,7 @@
             <th>医疗单位</th>
             <th>医疗价格</th>
             <th>备注</th>
-            <th class="text-center">操作</th>
+            <th class="text-center" style="width: 12%;">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +44,7 @@
           </tr>
           <tr v-for="item in treatmentItems" :key="item.id">
             <td>
-              <input class="form-check-input" type="checkbox" :value="item.id">
+              <input class="form-check-input" type="checkbox" :value="item.id" v-model="selectedItemIds">
             </td>
             <td>{{ item.medicalType }}</td>
             <td>{{ item.medicalNumber }}</td>
@@ -54,7 +57,7 @@
             <td>{{ item.remark }}</td>
             <td class="text-center">
               <button class="btn btn-sm btn-outline-primary me-2" @click="editTreatmentItem(item)">编辑</button>
-              <button class="btn btn-sm btn-outline-danger" @click="deleteTreatmentItem(item.id)">删除</button>
+              <button class="btn btn-sm btn-outline-danger" @click="deleteSingleItem(item.id)">删除</button>
             </td>
           </tr>
         </tbody>
@@ -150,6 +153,7 @@ export default {
   data() {
     return {
       treatmentItems: [],
+      selectedItemIds: [],
       currentTreatmentItem: {
         id: null,
         medicalType: '',
@@ -173,13 +177,16 @@ export default {
     }
   },
   computed: {
+    isAllSelected() {
+      return this.treatmentItems.length > 0 && this.selectedItemIds.length === this.treatmentItems.length;
+    },
     totalPages() {
       return Math.ceil(this.pagination.total / this.pagination.pageSize)
     },
     paginatedPages() {
       const total = this.totalPages;
       const current = this.pagination.currentPage;
-      const maxVisible = 7; // 最多显示的按钮数
+      const maxVisible = 7;
       
       if (total <= maxVisible) {
         return Array.from({ length: total }, (_, i) => i + 1);
@@ -198,11 +205,23 @@ export default {
       }
     }
   },
+  watch: {
+    'pagination.currentPage'() {
+        this.selectedItemIds = [];
+    }  
+  },
   mounted() {
     this.fetchTreatmentItems()
     this.treatmentItemModal = new Modal(document.getElementById('treatmentItemModal'))
   },
   methods: {
+    toggleSelectAll(event) {
+      if (event.target.checked) {
+        this.selectedItemIds = this.treatmentItems.map(item => item.id);
+      } else {
+        this.selectedItemIds = [];
+      }
+    },
     async fetchTreatmentItems() {
       try {
         const params = {
@@ -213,9 +232,10 @@ export default {
         const response = await treatmentApi.getTreatments(params)
         this.treatmentItems = response.data.data.rows
         this.pagination.total = response.data.data.total
+        this.selectedItemIds = [];
       } catch (error) {
         console.error('获取诊疗项目数据失败:', error)
-        alert('获取诊疗项目数据失败')
+        alert('获取诊疗项目数��失败')
       }
     },
     handleSearch() {
@@ -260,13 +280,20 @@ export default {
         this.treatmentItemModal.hide()
       } catch (error) {
         console.error('保存诊疗项目失败:', error)
-        alert('保存诊疗项目失败')
+        alert('保存诊疗项目��败')
       }
     },
-    async deleteTreatmentItem(id) {
-      if (confirm('确定要删除该诊疗项目吗？')) {
+    async deleteSingleItem(id) {
+        this.deleteItems([id]);
+    },
+    async deleteSelectedItems() {
+        this.deleteItems(this.selectedItemIds);
+    },
+    async deleteItems(ids) {
+      if (ids.length === 0) return;
+      if (confirm(`确定要删除选中的 ${ids.length} 项吗？`)) {
         try {
-          await treatmentApi.deleteTreatments([id])
+          await treatmentApi.deleteTreatments(ids)
           this.fetchTreatmentItems()
         } catch (error) {
           console.error('删除诊疗项目失败:', error)
@@ -287,5 +314,20 @@ export default {
 <style scoped>
 .treatment-item-maintenance {
   padding: 20px;
+}
+
+/* 关键修复：优化表格布局 */
+.table-responsive .table {
+  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-responsive .table th,
+.table-responsive .table td {
+  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
+  word-wrap: break-word; 
+  /* 垂直居中对齐，更美观 */
+  vertical-align: middle; 
 }
 </style>
