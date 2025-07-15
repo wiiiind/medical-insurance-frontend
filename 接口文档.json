@@ -1,0 +1,3325 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "医保项目",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "医疗保险基本信息维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/医保药品数据维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/诊疗项目数据维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/医疗服务设施数据维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/药品报销比例维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/三级医院报销比例维护"
+    },
+    {
+      "name": "医疗保险基本信息维护/三级医院报销比例维护/一级"
+    },
+    {
+      "name": "医疗保险基本信息维护/三级医院报销比例维护/二级"
+    },
+    {
+      "name": "医疗保险基本信息维护/三级医院报销比例维护/三级"
+    },
+    {
+      "name": "医院住院医生站医嘱处理"
+    },
+    {
+      "name": "医院住院医生站医嘱处理/患者诊断"
+    },
+    {
+      "name": "医院住院医生站医嘱处理/患者医嘱"
+    }
+  ],
+  "paths": {
+    "/manage/drugs": {
+      "get": {
+        "summary": "数据显示接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医保药品数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "drugName",
+            "in": "query",
+            "description": "名称",
+            "required": false,
+            "example": "乙",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "insuranceType": {
+                                "type": "string"
+                              },
+                              "chinaName": {
+                                "type": "string"
+                              },
+                              "goodsName": {
+                                "type": "string"
+                              },
+                              "specifications": {
+                                "type": "string"
+                              },
+                              "drugUnit": {
+                                "type": "string"
+                              },
+                              "drugManufacturer": {
+                                "type": "string"
+                              },
+                              "drugPrice": {
+                                "type": "null"
+                              },
+                              "remarks": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "insuranceType",
+                              "chinaName",
+                              "goodsName",
+                              "specifications",
+                              "drugUnit",
+                              "drugManufacturer",
+                              "drugPrice",
+                              "remarks"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医保药品数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 4322,
+                "insuranceType": "测试类",
+                "chinaName": "测试",
+                "goodsName": "测试",
+                "specifications": "测试",
+                "drugUnit": "次",
+                "drugManufacturer": "测试工厂",
+                "drugPrice": 100,
+                "remarks": "测试"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医保药品数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "insuranceType": "测试类",
+                "chinaName": "测试",
+                "goodsName": "测试",
+                "specifications": "测试",
+                "drugUnit": "次",
+                "drugManufacturer": "测试工厂",
+                "drugPrice": 100,
+                "remarks": "测试"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医保药品数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": [
+                4322,
+                4323
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/drugs/{id}": {
+      "get": {
+        "summary": "查询回显接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医保药品数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "1",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "insuranceType": {
+                          "type": "string"
+                        },
+                        "chinaName": {
+                          "type": "string"
+                        },
+                        "goodsName": {
+                          "type": "string"
+                        },
+                        "specifications": {
+                          "type": "string"
+                        },
+                        "drugUnit": {
+                          "type": "string"
+                        },
+                        "drugManufacturer": {
+                          "type": "string"
+                        },
+                        "drugPrice": {
+                          "type": "null"
+                        },
+                        "remarks": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "insuranceType",
+                        "chinaName",
+                        "goodsName",
+                        "specifications",
+                        "drugUnit",
+                        "drugManufacturer",
+                        "drugPrice",
+                        "remarks"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/treatment": {
+      "get": {
+        "summary": "数据显示接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/诊疗项目数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "medicalName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "理",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": 2,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": 5,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/诊疗项目数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "medicalType": "example",
+                "medicalNumber": "example",
+                "countryNumber": "example",
+                "medicalName": "example",
+                "medicalInfo": "example",
+                "medicalExclude": "example",
+                "medicalUnit": "example",
+                "medicalPrice": 100,
+                "remark": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/诊疗项目数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 1778,
+                "medicalType": "example",
+                "medicalNumber": "example",
+                "countryNumber": "example",
+                "medicalName": "example",
+                "medicalInfo": "example",
+                "medicalExclude": "example",
+                "medicalUnit": "example",
+                "medicalPrice": 100,
+                "remark": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/诊疗项目数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": [
+              "1780",
+              "1781"
+            ],
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": ""
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/treatment/{id}": {
+      "get": {
+        "summary": "查询回显接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/诊疗项目数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "1",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "medicalType": {
+                          "type": "string"
+                        },
+                        "medicalNumber": {
+                          "type": "string"
+                        },
+                        "countryNumber": {
+                          "type": "string"
+                        },
+                        "medicalName": {
+                          "type": "string"
+                        },
+                        "medicalInfo": {
+                          "type": "string"
+                        },
+                        "medicalExclude": {
+                          "type": "string"
+                        },
+                        "medicalUnit": {
+                          "type": "string"
+                        },
+                        "medicalPrice": {
+                          "type": "null"
+                        },
+                        "remark": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "medicalType",
+                        "medicalNumber",
+                        "countryNumber",
+                        "medicalName",
+                        "medicalInfo",
+                        "medicalExclude",
+                        "medicalUnit",
+                        "medicalPrice",
+                        "remark"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/medserv": {
+      "get": {
+        "summary": "数据显示接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医疗服务设施数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "medicalName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "术",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSzie",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "medicalType": {
+                                "type": "string"
+                              },
+                              "medicalNumber": {
+                                "type": "string"
+                              },
+                              "countryNumber": {
+                                "type": "string"
+                              },
+                              "medicalName": {
+                                "type": "string"
+                              },
+                              "medicalInfo": {
+                                "type": "string"
+                              },
+                              "medicalExclude": {
+                                "type": "string"
+                              },
+                              "medicalUnit": {
+                                "type": "string"
+                              },
+                              "medicalPrice": {
+                                "type": "null"
+                              },
+                              "remark": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "medicalType",
+                              "medicalNumber",
+                              "countryNumber",
+                              "medicalName",
+                              "medicalInfo",
+                              "medicalExclude",
+                              "medicalUnit",
+                              "medicalPrice",
+                              "remark"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医疗服务设施数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "medicalType": "example",
+                "medicalNumber": "example",
+                "countryNumber": "example",
+                "medicalName": "example",
+                "medicalInfo": "example",
+                "medicalExclude": "example",
+                "medicalUnit": "example",
+                "medicalPrice": 100,
+                "remark": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医疗服务设施数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 296,
+                "medicalType": "example",
+                "medicalNumber": "example",
+                "countryNumber": "example",
+                "medicalName": "example",
+                "medicalInfo": "example",
+                "medicalExclude": "example",
+                "medicalUnit": "example",
+                "medicalPrice": 100,
+                "remark": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医疗服务设施数据维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": [
+                296,
+                297
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/medserv/{id}": {
+      "get": {
+        "summary": "查询回显",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/医疗服务设施数据维护"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "1",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "medicalType": {
+                          "type": "string"
+                        },
+                        "medicalNumber": {
+                          "type": "string"
+                        },
+                        "countryNumber": {
+                          "type": "string"
+                        },
+                        "medicalName": {
+                          "type": "string"
+                        },
+                        "medicalInfo": {
+                          "type": "string"
+                        },
+                        "medicalExclude": {
+                          "type": "string"
+                        },
+                        "medicalUnit": {
+                          "type": "string"
+                        },
+                        "medicalPrice": {
+                          "type": "null"
+                        },
+                        "remark": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "medicalType",
+                        "medicalNumber",
+                        "countryNumber",
+                        "medicalName",
+                        "medicalInfo",
+                        "medicalExclude",
+                        "medicalUnit",
+                        "medicalPrice",
+                        "remark"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/drugReimburse": {
+      "get": {
+        "summary": "查询接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/药品报销比例维护"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "drugReimbursementType": {
+                            "type": "string"
+                          },
+                          "drugReimbursementProportion": {
+                            "type": "integer"
+                          },
+                          "drugReimbursementInfo": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "status": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "drugReimbursementType",
+                          "drugReimbursementProportion",
+                          "drugReimbursementInfo",
+                          "status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/药品报销比例维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "drugReimbursementType": "example",
+                "drugReimbursementProportion": 0,
+                "drugReimbursementInfo": "example",
+                "status": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/药品报销比例维护"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 4,
+                "drugReimbursementType": "example",
+                "drugReimbursementProportion": 0,
+                "drugReimbursementInfo": "example",
+                "status": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/drugReimburse/{id}": {
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/药品报销比例维护"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "5",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/hospReimburse/level1": {
+      "get": {
+        "summary": "查询接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/一级"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "minPayLevel": {
+                            "type": "string"
+                          },
+                          "maxPayLevel": {
+                            "type": "string"
+                          },
+                          "peopleType": {
+                            "type": "string"
+                          },
+                          "payProportion": {
+                            "type": "string"
+                          },
+                          "hospitalLevel": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/一级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "minPayLevel": "example",
+                "maxPayLevel": "example",
+                "peopleType": "example",
+                "payProportion": "example",
+                "hospitalLevel": "example",
+                "status": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/一级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 4,
+                "minPayLevel": "new",
+                "maxPayLevel": "new",
+                "peopleType": "new",
+                "payProportion": "new",
+                "hospitalLevel": "new",
+                "status": "0"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/一级"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "7",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/hospReimburse/level2": {
+      "get": {
+        "summary": "查询接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/二级"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "minPayLevel": {
+                            "type": "string"
+                          },
+                          "maxPayLevel": {
+                            "type": "string"
+                          },
+                          "peopleType": {
+                            "type": "string"
+                          },
+                          "payProportion": {
+                            "type": "string"
+                          },
+                          "hospitalLevel": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/二级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "minPayLevel": "example",
+                "maxPayLevel": "example",
+                "peopleType": "example",
+                "payProportion": "example",
+                "hospitalLevel": "example",
+                "status": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/二级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 5,
+                "minPayLevel": "new",
+                "maxPayLevel": "new",
+                "peopleType": "new",
+                "payProportion": "new",
+                "hospitalLevel": "new",
+                "status": "1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/二级"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "8",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/manage/hospReimburse/level3": {
+      "get": {
+        "summary": "查询接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/三级"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "minPayLevel": {
+                            "type": "string"
+                          },
+                          "maxPayLevel": {
+                            "type": "string"
+                          },
+                          "peopleType": {
+                            "type": "string"
+                          },
+                          "payProportion": {
+                            "type": "string"
+                          },
+                          "hospitalLevel": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "新增接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/三级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "minPayLevel": "example",
+                "maxPayLevel": "example",
+                "peopleType": "example",
+                "payProportion": "example",
+                "hospitalLevel": "example",
+                "status": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "summary": "修改接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/三级"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "id": 6,
+                "minPayLevel": "new",
+                "maxPayLevel": "new",
+                "peopleType": "new",
+                "payProportion": "new",
+                "hospitalLevel": "new",
+                "status": "1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医疗保险基本信息维护/三级医院报销比例维护/三级"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID 编号",
+            "required": false,
+            "example": "9",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/diseaseDiag/select": {
+      "get": {
+        "summary": "患者选择",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [
+          {
+            "name": "realName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "e",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "caseNumber": {
+                                "type": "string"
+                              },
+                              "realName": {
+                                "type": "string"
+                              },
+                              "gender": {
+                                "type": "string"
+                              },
+                              "cardNumber": {
+                                "type": "string"
+                              },
+                              "birthday": {
+                                "type": "string"
+                              },
+                              "age": {
+                                "type": "integer"
+                              },
+                              "ageType": {
+                                "type": "string"
+                              },
+                              "homeAddress": {
+                                "type": "string"
+                              },
+                              "visitDate": {
+                                "type": "string"
+                              },
+                              "registMethod": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/diseaseDiag/admission": {
+      "get": {
+        "summary": "入院诊断分页条件查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "diseaseName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "心",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "入院诊断增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "patientId": 1,
+                "diseaseId": 1,
+                "orderTime": "2025-7-14 20:37:24",
+                "diseaseType": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/diseaseDiag/main": {
+      "get": {
+        "summary": "主要诊断分页条件查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": 2,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "diseaseName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "小",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "diseaseCode": {
+                                "type": "string"
+                              },
+                              "diseaseName": {
+                                "type": "string"
+                              },
+                              "diseaseICD": {
+                                "type": "string"
+                              },
+                              "diseaseCategory": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "diseaseCode",
+                              "diseaseName",
+                              "diseaseICD",
+                              "diseaseCategory"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "主要诊断增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "patientId": 1,
+                "diseaseId": 2,
+                "orderTime": null,
+                "diseaseType": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/diseaseDiag/other": {
+      "get": {
+        "summary": "其他诊断分页条件查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "2",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "diseaseName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "diseaseCode": {
+                                "type": "string"
+                              },
+                              "diseaseName": {
+                                "type": "string"
+                              },
+                              "diseaseICD": {
+                                "type": "string"
+                              },
+                              "diseaseCategory": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "diseaseCode",
+                              "diseaseName",
+                              "diseaseICD",
+                              "diseaseCategory"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "其他诊断增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者诊断"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "patientId": 1,
+                "diseaseId": 3,
+                "orderTime": null,
+                "diseaseType": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/medOrder/select": {
+      "get": {
+        "summary": "患者选择",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [
+          {
+            "name": "realName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "e",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "caseNumber": {
+                            "type": "string"
+                          },
+                          "realName": {
+                            "type": "string"
+                          },
+                          "gender": {
+                            "type": "string"
+                          },
+                          "cardNumber": {
+                            "type": "string"
+                          },
+                          "birthday": {
+                            "type": "string"
+                          },
+                          "age": {
+                            "type": "integer"
+                          },
+                          "ageType": {
+                            "type": "string"
+                          },
+                          "homeAddress": {
+                            "type": "string"
+                          },
+                          "visitDate": {
+                            "type": "string"
+                          },
+                          "registMethod": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/medOrder/drug": {
+      "get": {
+        "summary": "药品查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "chinaName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "1",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "insuranceType": {
+                                "type": "string"
+                              },
+                              "chinaName": {
+                                "type": "string"
+                              },
+                              "goodsName": {
+                                "type": "string"
+                              },
+                              "specifications": {
+                                "type": "string"
+                              },
+                              "drugUnit": {
+                                "type": "string"
+                              },
+                              "drugManufacturer": {
+                                "type": "string"
+                              },
+                              "drugPrice": {
+                                "type": "null"
+                              },
+                              "remarks": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "insuranceType",
+                              "chinaName",
+                              "goodsName",
+                              "specifications",
+                              "drugUnit",
+                              "drugManufacturer",
+                              "drugPrice",
+                              "remarks"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "患者药品医嘱增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "startTime": "2025-7-15 08:22:57",
+                "endTime": "2025-7-15 08:22:57",
+                "doctorOrder": "example",
+                "orderNumber": 3,
+                "useMethod": "example",
+                "drugId": 1,
+                "status": 1,
+                "patientId": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/medOrder/treatment": {
+      "get": {
+        "summary": "诊疗项目查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": 0,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "medicalName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "治疗",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "medicalType": {
+                                "type": "string"
+                              },
+                              "medicalNumber": {
+                                "type": "string"
+                              },
+                              "countryNumber": {
+                                "type": "string"
+                              },
+                              "medicalName": {
+                                "type": "string"
+                              },
+                              "medicalInfo": {
+                                "type": "string"
+                              },
+                              "medicalExclude": {
+                                "type": "string"
+                              },
+                              "medicalUnit": {
+                                "type": "string"
+                              },
+                              "medicalPrice": {
+                                "type": "null"
+                              },
+                              "remark": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "medicalType",
+                              "medicalNumber",
+                              "countryNumber",
+                              "medicalName",
+                              "medicalInfo",
+                              "medicalExclude",
+                              "medicalUnit",
+                              "medicalPrice",
+                              "remark"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "患者诊疗项目医嘱增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "orderTime": "2025-7-15 08:30:48",
+                "doctorOrder": "example",
+                "useMethod": "example",
+                "diagnosisId": 1,
+                "status": 1,
+                "patientId": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/medOrder/service": {
+      "get": {
+        "summary": "医疗服务查询",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": 0,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "medicalName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer"
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "medicalType": {
+                                "type": "string"
+                              },
+                              "medicalNumber": {
+                                "type": "string"
+                              },
+                              "countryNumber": {
+                                "type": "string"
+                              },
+                              "medicalName": {
+                                "type": "string"
+                              },
+                              "medicalInfo": {
+                                "type": "string"
+                              },
+                              "medicalExclude": {
+                                "type": "string"
+                              },
+                              "medicalUnit": {
+                                "type": "string"
+                              },
+                              "medicalPrice": {
+                                "type": "null"
+                              },
+                              "remark": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "medicalType",
+                              "medicalNumber",
+                              "countryNumber",
+                              "medicalName",
+                              "medicalInfo",
+                              "medicalExclude",
+                              "medicalUnit",
+                              "medicalPrice",
+                              "remark"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "rows"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "患者医疗服务医嘱增加接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理/患者医嘱"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "orderTime": "2025-7-15 08:33:48",
+                "doctorOrder": "example",
+                "useMethod": "example",
+                "medicalId": 1,
+                "status": 1,
+                "patientId": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/hospital/patientRegister": {
+      "post": {
+        "summary": "入院登记接口",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "医院住院医生站医嘱处理"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "example": {
+                "caseNumber": "example",
+                "realName": "example",
+                "gender": "男",
+                "cardNumber": "example",
+                "birthday": "2025-7-13 18:22:38",
+                "age": 18,
+                "ageType": "岁",
+                "homeAddress": "example",
+                "visitDate": "2025-7-13 18:22:38",
+                "registMethod": "example"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "开发环境"
+    }
+  ],
+  "security": []
+}
