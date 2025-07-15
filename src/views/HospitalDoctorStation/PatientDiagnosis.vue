@@ -124,23 +124,24 @@ export default {
     debouncedSearchDisease: _.debounce(function() {
       this.searchDiseases();
     }, 300),
-    async searchDiseases() {
-      if (this.diseaseSearchQuery.length < 1) {
-        this.diseaseSearchResults = [];
-        this.showResults = false;
-        return;
-      }
-      try {
-        // 调用指向 /other 的 API
-        const response = await diagnosisApi.searchDiseases({ diseaseName: this.diseaseSearchQuery });
-        this.diseaseSearchResults = response.data.data.rows;
-        this.showResults = true;
-      } catch (error) {
-        console.error('搜索疾病失败:', error);
-        this.diseaseSearchResults = [];
-        this.showResults = false;
-      }
-    },
+async searchDiseases() {
+  if (this.diseaseSearchQuery.length < 1) {
+    this.diseaseSearchResults = [];
+    this.showResults = false;
+    return;
+  }
+  try {
+    // 调用指向 /main 的 API
+    const response = await diagnosisApi.searchDiseases({ diseaseName: this.diseaseSearchQuery });
+    // 关键修复：添加了安全检查，以防止在API返回空数据时程序崩溃
+    this.diseaseSearchResults = response.data?.data?.rows || [];
+    this.showResults = true;
+  } catch (error) {
+    console.error('搜索疾病失败:', error);
+    this.diseaseSearchResults = [];
+    this.showResults = false;
+  }
+},
     selectDisease(disease) {
       this.currentDiagnosis.diseaseId = disease.id;
       this.diseaseSearchQuery = disease.diseaseName;
