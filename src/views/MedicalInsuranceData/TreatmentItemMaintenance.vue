@@ -67,8 +67,9 @@
         <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
           <a class="page-link" href="#" @click.prevent="goToPage(pagination.currentPage - 1)">上一页</a>
         </li>
-        <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: pagination.currentPage === page }">
-          <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+        <li class="page-item" v-for="(page, index) in paginatedPages" :key="index" 
+            :class="{ active: pagination.currentPage === page, disabled: page === '...' }">
+          <a class="page-link" href="#" @click.prevent="page !== '...' && goToPage(page)">{{ page }}</a>
         </li>
         <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
           <a class="page-link" href="#" @click.prevent="goToPage(pagination.currentPage + 1)">下一页</a>
@@ -88,7 +89,7 @@
             <form @submit.prevent="saveTreatmentItem">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="medicalType" class="form-label">医��类型</label>
+                  <label for="medicalType" class="form-label">医疗类型</label>
                   <input type="text" class="form-control" id="medicalType" v-model="currentTreatmentItem.medicalType" required>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -174,6 +175,27 @@ export default {
   computed: {
     totalPages() {
       return Math.ceil(this.pagination.total / this.pagination.pageSize)
+    },
+    paginatedPages() {
+      const total = this.totalPages;
+      const current = this.pagination.currentPage;
+      const maxVisible = 7; // 最多显示的按钮数
+      
+      if (total <= maxVisible) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+      }
+
+      if (current < 5) {
+        return [1, 2, 3, 4, 5, '...', total];
+      } else if (current > total - 4) {
+        const pages = [1, '...'];
+        for(let i = total - 4; i <= total; i++) {
+          pages.push(i);
+        }
+        return pages;
+      } else {
+        return [1, '...', current - 1, current, current + 1, '...', total];
+      }
     }
   },
   mounted() {

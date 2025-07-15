@@ -7,7 +7,7 @@
       <div class="col-md-4">
         <div class="card">
           <div class="card-header">
-            待诊断患者列表
+            已入院患者列表
           </div>
           <div class="list-group list-group-flush">
              <a href="#" v-for="patient in patients" :key="patient.id"
@@ -17,7 +17,7 @@
                {{ patient.realName }} - {{ patient.cardNumber }}
             </a>
             <div v-if="patients.length === 0" class="list-group-item text-muted">
-              暂无待诊断患者
+              暂无已入院患者
             </div>
           </div>
         </div>
@@ -67,6 +67,8 @@
 
 <script>
 import * as diagnosisApi from '@/api/diagnosis.js'
+// 关键修改点1：引入获取入院患者列表的API
+import * as patientOrdersApi from '@/api/patientOrders.js'
 
 export default {
   name: 'PatientDiagnosis',
@@ -83,7 +85,8 @@ export default {
     }
   },
   mounted() {
-    this.fetchUndiagnosedPatients()
+    // 关键修改点3：调用新的方法获取患者列表
+    this.fetchPatients()
   },
   methods: {
     getCurrentDateTime() {
@@ -91,12 +94,16 @@ export default {
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       return now.toISOString().slice(0, 16);
     },
-    async fetchUndiagnosedPatients() {
+    // 关键修改点2：修改方法，调用正确的API
+    async fetchPatients() {
       try {
-        const response = await diagnosisApi.getUndiagnosedPatients()
-        this.patients = response.data.data
+        // 不再调用 diagnosisApi.getUndiagnosedPatients()
+        // 而是调用 patientOrdersApi.getAdmittedPatientsForOrders()
+        const response = await patientOrdersApi.getAdmittedPatientsForOrders()
+        // 接口文档显示 /hospital/medOrder/select 返回的数据在 response.data.data
+        this.patients = response.data.data 
       } catch (error) {
-        console.error('获取待诊断患者列表失败:', error)
+        console.error('获取患者列表失败:', error)
       }
     },
     selectPatient(patient) {
@@ -109,29 +116,31 @@ export default {
         return
       }
       
+      // patientId应该从选中的患者中获取
       const payload = {
         ...this.currentDiagnosis,
         patientId: this.selectedPatient.id
       };
       
+      // diseaseType在v-model中已经绑定，无需再从payload中取
+      const apiCallMap = {
+        admission: diagnosisApi.saveAdmissionDiagnosis,
+        main: diagnosisApi.saveMainDiagnosis,
+        other: diagnosisApi.saveOtherDiagnosis
+      };
+
+      const apiCall = apiCallMap[this.currentDiagnosis.diseaseType];
+
+      if (!apiCall) {
+        alert('未知的诊断类型');
+        return;
+      }
+      
       try {
-        const apiCallMap = {
-          admission: diagnosisApi.saveAdmissionDiagnosis,
-          main: diagnosisApi.saveMainDiagnosis,
-          other: diagnosisApi.saveOtherDiagnosis
-        };
-
-        const apiCall = apiCallMap[payload.diseaseType];
-
-        if (apiCall) {
-          await apiCall(payload);
-        } else {
-          alert('未知的诊断类型');
-          return;
-        }
-
+        await apiCall(payload);
         alert('诊断信息保存成功！')
-        this.resetCurrentDiagnosis()
+        // 诊断成功后不清空已选患者，但重置表单
+        this.resetCurrentDiagnosis() 
       } catch (error) {
         console.error('保存诊断信息失败:', error)
         alert('保存诊断信息失败')
