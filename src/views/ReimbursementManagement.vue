@@ -1,35 +1,23 @@
 <template>
-  <div class="reimbursement-management">
-    <h1>医保中心报销管理</h1>
-    <div class="row">
-      <div class="col-md-3">
-        <div class="list-group">
-          <router-link to="/reimbursement-management/member-info-management" class="list-group-item list-group-item-action">
-            参保人员信息管理
-          </router-link>
-          <router-link to="/reimbursement-management/member-expense-query" class="list-group-item list-group-item-action">
-            参保人员费用查询
-          </router-link>
-          <router-link to="/reimbursement-management/member-reimbursement" class="list-group-item list-group-item-action">
-            参保人员费用报销
-          </router-link>
-        </div>
-      </div>
-      <div class="col-md-9">
-        <router-view />
-      </div>
-    </div>
+  <div class="reimbursement-management-container">
+    <!-- 
+      这个组件现在只作为路由容器。
+      所有的子页面 (如人员管理、费用查询等) 将会在这里被渲染。
+      导航逻辑已全部移至 AppSidebar.vue。
+    -->
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'ReimbursementManagement'
-}
+  name: 'ReimbursementManagement',
+};
 </script>
 
 <style scoped>
-.reimbursement-management {
-  padding: 20px;
+/* 可以为容器添加一些通用内边距 */
+.reimbursement-management-container {
+  padding: 1rem;
 }
 </style>

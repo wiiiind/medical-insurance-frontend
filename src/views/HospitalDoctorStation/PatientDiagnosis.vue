@@ -86,7 +86,7 @@ export default {
       selectedPatient: null,
       currentDiagnosis: {
         patientId: null,
-        diseaseId: null, // 将通过搜索选择来填充
+        diseaseId: null,
         orderTime: this.getCurrentDateTime(),
         diseaseType: 'main'
       },
@@ -115,7 +115,6 @@ export default {
       this.selectedPatient = patient;
       this.resetCurrentDiagnosis();
     },
-    // 使用 debounce 防止频繁的API调用
     debouncedSearchDisease: _.debounce(function() {
       this.searchDiseases();
     }, 300),
@@ -125,19 +124,18 @@ export default {
         return;
       }
       try {
-        // 假设使用 main 接口进行搜索，可以根据业务调整
-        const response = await diagnosisApi.getUndiagnosedPatients({ diseaseName: this.diseaseSearchQuery });
+        // 关键修改：调用新的 searchDiseases 方法
+        const response = await diagnosisApi.searchDiseases({ diseaseName: this.diseaseSearchQuery });
         this.diseaseSearchResults = response.data.data.rows;
       } catch (error) {
         console.error('搜索疾病失败:', error);
         this.diseaseSearchResults = [];
       }
     },
-    // 当用户从列表中选择一个疾病时
     selectDisease(disease) {
       this.currentDiagnosis.diseaseId = disease.id;
-      this.diseaseSearchQuery = disease.diseaseName; // 在输入框中显示选定的疾病名称
-      this.diseaseSearchResults = []; // 清空搜索结果
+      this.diseaseSearchQuery = disease.diseaseName;
+      this.diseaseSearchResults = [];
     },
     async saveCurrentDiagnosis() {
       if (!this.selectedPatient || !this.currentDiagnosis.diseaseId) {

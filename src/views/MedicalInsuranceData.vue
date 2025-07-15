@@ -1,41 +1,23 @@
 <template>
-  <div class="medical-insurance-data">
-    <h1>医疗保险基本信息维护</h1>
-    <div class="row">
-      <div class="col-md-3">
-        <div class="list-group">
-          <router-link to="/medical-insurance-data/drug-maintenance" class="list-group-item list-group-item-action">
-            医保药品数据维护
-          </router-link>
-          <router-link to="/medical-insurance-data/treatment-item-maintenance" class="list-group-item list-group-item-action">
-            诊疗项目数据维护
-          </router-link>
-          <router-link to="/medical-insurance-data/medical-service-maintenance" class="list-group-item list-group-item-action">
-            医疗服务设施数据维护
-          </router-link>
-          <router-link to="/medical-insurance-data/drug-reimbursement-ratio-maintenance" class="list-group-item list-group-item-action">
-            药品报销比例维护
-          </router-link>
-          <router-link to="/medical-insurance-data/hospital-reimbursement-ratio-maintenance" class="list-group-item list-group-item-action">
-            医院报销比例维护
-          </router-link>
-        </div>
-      </div>
-      <div class="col-md-9">
-        <router-view />
-      </div>
-    </div>
+  <div class="medical-insurance-data-container">
+    <!-- 
+      这个组件现在只作为路由容器。
+      所有的子页面 (如药品维护、项目维护等) 将会在这里被渲染。
+      导航逻辑已全部移至 AppSidebar.vue。
+    -->
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'MedicalInsuranceData'
-}
+  name: 'MedicalInsuranceData',
+};
 </script>
 
 <style scoped>
-.medical-insurance-data {
-  padding: 20px;
+/* 可以为容器添加一些通用内边距 */
+.medical-insurance-data-container {
+  padding: 1rem;
 }
 </style>

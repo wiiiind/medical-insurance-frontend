@@ -1,35 +1,23 @@
 <template>
-  <div class="hospital-doctor-station">
-    <h1>医院住院医生站医嘱处理</h1>
-    <div class="row">
-      <div class="col-md-3">
-        <div class="list-group">
-          <router-link to="/hospital-doctor-station/admission-registration" class="list-group-item list-group-item-action">
-            入院登记
-          </router-link>
-          <router-link to="/hospital-doctor-station/patient-diagnosis" class="list-group-item list-group-item-action">
-            患者诊断
-          </router-link>
-          <router-link to="/hospital-doctor-station/patient-orders" class="list-group-item list-group-item-action">
-            患者医嘱
-          </router-link>
-        </div>
-      </div>
-      <div class="col-md-9">
-        <router-view />
-      </div>
-    </div>
+  <div class="hospital-doctor-station-container">
+    <!-- 
+      这个组件现在只作为路由容器。
+      所有的子页面 (如入院登记、患者诊断等) 将会在这里被渲染。
+      导航逻辑已全部移至 AppSidebar.vue。
+    -->
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HospitalDoctorStation'
-}
+  name: 'HospitalDoctorStation',
+};
 </script>
 
 <style scoped>
-.hospital-doctor-station {
-  padding: 20px;
+/* 可以为容器添加一些通用内边距 */
+.hospital-doctor-station-container {
+  padding: 1rem;
 }
 </style>
