@@ -45,19 +45,23 @@
                   </select>
                 </div>
 
-                <!-- 疾病名称搜索 (已集成滚动条功能) -->
-                <div class="mb-3 position-relative">
+                <div class="mb-3">
                   <label for="diseaseName" class="form-label">疾病名称</label>
-                  <input type="text" class="form-control" id="diseaseName" v-model="diseaseSearchQuery" 
-                         @input="debouncedSearchDisease" @blur="hideSearchResults" autocomplete="off" placeholder="输入疾病名称进行搜索...">
-                  
-                  <div v-if="diseaseSearchResults.length > 0 && showResults" 
-                       class="list-group position-absolute w-100 search-results-container" 
-                       style="z-index: 1000;">
-                    <button v-for="disease in diseaseSearchResults" :key="disease.id" type="button" 
-                            class="list-group-item list-group-item-action" @mousedown="selectDisease(disease)">
-                      {{ disease.diseaseName }} ({{ disease.diseaseICD }})
-                    </button>
+                  <div class="position-relative" ref="searchWrapper" @focusout="handleFocusOut">
+                    <input type="text" class="form-control" id="diseaseName" v-model="diseaseSearchQuery" 
+                           @input="handleInput" @focus="showResults = true"
+                           @keydown.down.prevent="navigateDown" @keydown.up.prevent="navigateUp" @keydown.enter.prevent="selectHighlightedItem" @keydown.tab.prevent="handleTab"
+                           autocomplete="off">
+                    
+                    <div v-if="diseaseSearchResults.length > 0 && showResults" 
+                         class="list-group position-absolute w-100 search-results-container" 
+                         style="z-index: 1000;">
+                      <button v-for="(disease, index) in diseaseSearchResults" :key="disease.id" type="button" 
+                              class="list-group-item list-group-item-action" 
+                              :class="{ 'active': index === highlightedIndex }" @mousedown="selectDisease(disease)">
+                        {{ disease.diseaseName }} ({{ disease.diseaseICD }})
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -96,8 +100,10 @@ export default {
         diseaseType: 'main'
       },
       diseaseSearchQuery: '',
+      userTypedQuery: '',
       diseaseSearchResults: [],
-      showResults: false, // 新增状态，控制结果列表的显示
+      showResults: false,
+      highlightedIndex: -1,
     };
   },
   mounted() {
@@ -121,20 +127,25 @@ export default {
       this.selectedPatient = patient;
       this.resetCurrentDiagnosis();
     },
+    handleInput() {
+      this.userTypedQuery = this.diseaseSearchQuery;
+      this.highlightedIndex = -1;
+      this.debouncedSearchDisease();
+    },
     debouncedSearchDisease: _.debounce(function() {
       this.searchDiseases();
     }, 300),
 async searchDiseases() {
-  if (this.diseaseSearchQuery.length < 1) {
+  if (this.userTypedQuery.length < 1) {
     this.diseaseSearchResults = [];
     this.showResults = false;
     return;
   }
   try {
     // 调用指向 /main 的 API
-    const response = await diagnosisApi.searchDiseases({ diseaseName: this.diseaseSearchQuery });
+    const response = await diagnosisApi.searchDiseases({ diseaseName: this.userTypedQuery });
     // 关键修复：添加了安全检查，以防止在API返回空数据时程序崩溃
-    this.diseaseSearchResults = response.data?.data?.rows || [];
+    this.diseaseSearchResults = response.data?.data || [];
     this.showResults = true;
   } catch (error) {
     console.error('搜索疾病失败:', error);
@@ -142,15 +153,54 @@ async searchDiseases() {
     this.showResults = false;
   }
 },
+    navigateDown() {
+      if (this.highlightedIndex < this.diseaseSearchResults.length - 1) {
+        this.highlightedIndex++;
+        this.updatePreview();
+      }
+    },
+    navigateUp() {
+      if (this.highlightedIndex > 0) {
+        this.highlightedIndex--;
+        this.updatePreview();
+      }
+    },
+    handleTab(event) {
+      if (this.showResults && this.diseaseSearchResults.length > 0) {
+        // If there are search results and the list is visible,
+        // pressing Tab should navigate down the list.
+        this.navigateDown();
+        // Prevent default tab behavior (moving focus to next element)
+        // because we are handling navigation within the search results.
+        event.preventDefault();
+      }
+      // If no search results or list not visible, allow default tab behavior.
+      // No need to preventDefault here, as we want the default behavior.
+    },
+    updatePreview() {
+      if (this.highlightedIndex === -1) {
+        this.diseaseSearchQuery = this.userTypedQuery;
+      } else {
+        const highlightedItem = this.diseaseSearchResults[this.highlightedIndex];
+        this.diseaseSearchQuery = highlightedItem.diseaseName;
+      }
+    },
+    selectHighlightedItem() {
+      if (this.highlightedIndex > -1 && this.diseaseSearchResults[this.highlightedIndex]) {
+        this.selectDisease(this.diseaseSearchResults[this.highlightedIndex]);
+      }
+    },
     selectDisease(disease) {
       this.currentDiagnosis.diseaseId = disease.id;
       this.diseaseSearchQuery = disease.diseaseName;
       this.showResults = false;
+      this.userTypedQuery = '';
+      this.highlightedIndex = -1;
     },
-    hideSearchResults() {
-      setTimeout(() => {
+    handleFocusOut(event) {
+      if (this.$refs.searchWrapper && !this.$refs.searchWrapper.contains(event.relatedTarget)) {
         this.showResults = false;
-      }, 150);
+      }
     },
     async saveCurrentDiagnosis() {
       if (!this.selectedPatient || !this.currentDiagnosis.diseaseId) {
@@ -189,8 +239,10 @@ async searchDiseases() {
         diseaseType: 'main'
       };
       this.diseaseSearchQuery = '';
+      this.userTypedQuery = '';
       this.diseaseSearchResults = [];
       this.showResults = false;
+      this.highlightedIndex = -1;
     },
   },
 };
