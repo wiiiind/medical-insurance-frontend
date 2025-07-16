@@ -63,10 +63,23 @@
       <div v-if="detailsLoading" class="text-center">费用详情加载中...</div>
       <div v-else>
         <!-- 药品费用 -->
-        <h4>药品费用</h4>
-        <p class="text-muted">注意：药品分类暂时写死为'A'类，且因API文档未明确返回结构，此表格为空。</p>
+        <h4 class="mt-4">药品费用</h4>
         <table class="table table-bordered">
-          <!-- 药品费用表头和内容, 待API明确后补充 -->
+           <thead>
+            <tr>
+              <th>药品名称</th>
+              <th>规格</th>
+              <th>价格</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!drugData || drugData.length === 0"><td colspan="3" class="text-center">无数据</td></tr>
+            <tr v-for="item in drugData" :key="item.id">
+              <td>{{ item.chinaName }}</td>
+              <td>{{ item.specifications }}</td>
+              <td>{{ item.drugPrice }}</td>
+            </tr>
+          </tbody>
         </table>
         
         <!-- 诊疗项目费用 -->
@@ -77,23 +90,38 @@
               <th>项目名称</th>
               <th>价格</th>
               <th>单位</th>
+              <th>说明</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="!diagnosisData || diagnosisData.length === 0"><td colspan="3" class="text-center">无数据</td></tr>
+            <tr v-if="!diagnosisData || diagnosisData.length === 0"><td colspan="4" class="text-center">无数据</td></tr>
             <tr v-for="item in diagnosisData" :key="item.id">
               <td>{{ item.medicalName }}</td>
               <td>{{ item.medicalPrice }}</td>
               <td>{{ item.medicalUnit }}</td>
+              <td>{{ item.medicalInfo }}</td>
             </tr>
           </tbody>
         </table>
 
         <!-- 医疗服务费用 -->
         <h4 class="mt-4">医疗服务</h4>
-        <p class="text-muted">注意：因API文档未明确返回结构，此表格为空。</p>
         <table class="table table-bordered">
-          <!-- 医疗服务表头和内容, 待API明确后补充 -->
+          <thead>
+            <tr>
+              <th>服务名称</th>
+              <th>价格</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!serviceData || serviceData.length === 0"><td colspan="3" class="text-center">无数据</td></tr>
+            <tr v-for="item in serviceData" :key="item.id">
+              <td>{{ item.medicalName }}</td>
+              <td>{{ item.medicalPrice }}</td>
+              <td>{{ item.medicalInfo }}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -101,7 +129,8 @@
 </template>
 
 <script>
-import { getMemberExpenseList, getDiagnosisExpense } from '@/api/reimbursement';
+// 修正 #1: 移除 findDiagnosisInfo，因为它不属于这个页面的逻辑
+import { findPatInfo, getFeeReimbursementDrugs, getFeeReimbursementOtherItems } from '@/api/reimbursement';
 
 export default {
   name: 'MemberExpenseQuery',
@@ -142,20 +171,21 @@ export default {
   methods: {
     async fetchMembers() {
       this.loading = true;
-      this.selectedMember = null; // 重置选择
+      this.selectedMember = null;
       try {
         const params = {
-          page: this.pagination.page,
-          pageSize: this.pagination.pageSize,
+          current: this.pagination.page,
+          size: this.pagination.pageSize,
           realName: this.searchQuery.realName || undefined
         };
-        const response = await getMemberExpenseList(params);
-        if (response.data && response.data.data) {
-          this.members = response.data.data.rows;
-          this.pagination.total = response.data.data.total;
+        const response = await findPatInfo(params);
+        if (response && response.code === 1 && response.data) {
+          this.members = response.data.rows || [];
+          this.pagination.total = response.data.total || 0;
         } else {
           this.members = [];
           this.pagination.total = 0;
+          console.error('获取参保人员列表失败:', response ? response.msg : '请求失败');
         }
       } catch (error) {
         console.error('请求异常:', error);
@@ -176,6 +206,10 @@ export default {
       }
     },
     async selectMember(member) {
+      if (this.selectedMember && this.selectedMember.id === member.id) {
+        this.selectedMember = null;
+        return;
+      }
       this.selectedMember = member;
       this.detailsLoading = true;
       
@@ -184,9 +218,21 @@ export default {
       this.serviceData = [];
 
       try {
-        const diagnosisRes = await getDiagnosisExpense(member.id);
-        if (diagnosisRes.data && diagnosisRes.data.data) {
-          this.diagnosisData = diagnosisRes.data.data;
+        // 修正 #2: 只调用两个API
+        const drugPromise = getFeeReimbursementDrugs('1', this.selectedMember.id);
+        const otherItemsPromise = getFeeReimbursementOtherItems(this.selectedMember.id);
+
+        const [drugRes, otherItemsRes] = await Promise.all([drugPromise, otherItemsPromise]);
+
+        // --- 最终的数据解析逻辑 ---
+        if (drugRes && drugRes.code === 1) {
+          this.drugData = drugRes.data || [];
+        }
+        
+        if (otherItemsRes && otherItemsRes.code === 1 && otherItemsRes.data) {
+          // 修正 #3: 同时从 otherItemsRes 中解析 xlist 和 ylist
+          this.serviceData = otherItemsRes.data.xlist || [];
+          this.diagnosisData = otherItemsRes.data.ylist || [];
         }
       } catch (error) {
         console.error('获取费用详情失败:', error);

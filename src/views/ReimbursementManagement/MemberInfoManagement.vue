@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { getMemberList } from '@/api/reimbursement';
+import { manageInfo } from '@/api/reimbursement';
 
 export default {
   name: 'MemberInfoManagement',
@@ -104,14 +104,14 @@ export default {
           pageSize: this.pagination.pageSize,
           realName: this.searchQuery.realName || undefined
         };
-        const response = await getMemberList(params);
-        if (response.data && response.data.data) {
-          this.members = response.data.data.rows;
-          this.pagination.total = response.data.data.total;
+        const response = await manageInfo(params);
+        if (response && response.code === 1) {
+          this.members = response.data.rows;
+          this.pagination.total = response.data.total;
         } else {
           this.members = [];
           this.pagination.total = 0;
-          console.error('获取数据失败:', response.data.msg || '响应中没有data字段');
+          console.error('获取数据失败:', response.msg || '响应码不为1');
         }
       } catch (error) {
         console.error('请求异常:', error);

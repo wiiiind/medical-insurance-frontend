@@ -51,17 +51,14 @@
               <input type="date" class="form-control" id="visitDate" v-model="admissionForm.visitDate" required>
             </div>
             <!-- 关键修改 1: "登记方式" 改为 "结算类别" -->
-            <div class="col-md-6 mb-3">
-              <label for="registMethod" class="form-label">结算类别</label>
-              <!-- 
-                将输入框改为选择框，提供“自费”和“医保”两个选项。
-                v-model 仍然绑定到 admissionForm.registMethod，接口字段名不变。
-              -->
-              <select class="form-select" id="registMethod" v-model="admissionForm.registMethod">
-                <option value="自费">自费</option>
-                <option value="医保">医保</option>
-              </select>
-            </div>
+<div class="col-md-6 mb-3">
+  <label for="registMethod" class="form-label">结算类别</label>
+  <select class="form-select" id="registMethod" v-model.number="admissionForm.registMethod">
+    <!-- 将 value 从字符串改为数字 -->
+    <option value="2">自费</option>
+    <option value="1">医保</option>
+  </select>
+</div>
           </div>
           <div class="row">
              <!-- 关键修改 2: "病历号" 改为 "住院号" -->
@@ -102,7 +99,7 @@ export default {
         homeAddress: '',
         visitDate: new Date().toISOString().slice(0, 10),
         // 将 registMethod 的默认值改为更符合业务的选项
-        registMethod: '医保' 
+        registMethod: 1 
       }
     }
   },
@@ -128,7 +125,7 @@ export default {
         ageType: '岁',
         homeAddress: '',
         visitDate: new Date().toISOString().slice(0, 10),
-        registMethod: '医保'
+        registMethod: 1
       }
     }
   }

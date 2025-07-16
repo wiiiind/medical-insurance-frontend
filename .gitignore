@@ -21,3 +21,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.env
+医保项目 (3).md
