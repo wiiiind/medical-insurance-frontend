@@ -1,14 +1,13 @@
+<!-- src/views/MedicalInsuranceData/DrugMaintenance.vue (Corrected Data Handling) -->
 <template>
   <div class="drug-maintenance container-fluid mt-4">
     <h2 class="mb-4">医保药品数据维护</h2>
 
-    <!-- 功能按钮和搜索 -->
     <div class="d-flex justify-content-between mb-3">
       <div>
         <button class="btn btn-success me-2" @click="showAddModal">
           <i class="bi bi-plus-circle me-2"></i>新增药品
         </button>
-        <!-- 关键修改：新增批量删除按钮 -->
         <button class="btn btn-danger" @click="deleteSelectedDrugs" :disabled="selectedDrugIds.length === 0">
           <i class="bi bi-trash-fill me-2"></i>批量删除
         </button>
@@ -19,13 +18,11 @@
       </div>
     </div>
 
-    <!-- 药品数据表格 -->
     <div class="table-responsive">
       <table class="table table-striped table-hover">
         <thead class="table-light">
           <tr>
             <th style="width: 5%;">
-              <!-- 关键修改：绑定全选事件和状态 -->
               <input class="form-check-input" type="checkbox" @change="toggleSelectAll" :checked="isAllSelected">
             </th>
             <th>医保类型</th>
@@ -45,7 +42,6 @@
           </tr>
           <tr v-for="drug in drugs" :key="drug.id">
             <td>
-              <!-- 关键修改：绑定单个复选框的状态 -->
               <input class="form-check-input" type="checkbox" :value="drug.id" v-model="selectedDrugIds">
             </td>
             <td>{{ drug.insuranceType }}</td>
@@ -65,7 +61,6 @@
       </table>
     </div>
 
-    <!-- 分页 -->
     <nav aria-label="Page navigation" class="d-flex justify-content-end" v-if="totalPages > 1">
       <ul class="pagination">
         <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
@@ -81,7 +76,6 @@
       </ul>
     </nav>
 
-    <!-- 新增/编辑药品模态框 -->
     <div class="modal fade" id="drugModal" tabindex="-1" aria-labelledby="drugModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -182,12 +176,11 @@ export default {
     paginatedPages() {
       const total = this.totalPages;
       const current = this.pagination.currentPage;
-      const maxVisible = 7; // 最多显示的按钮数
+      const maxVisible = 7;
       
       if (total <= maxVisible) {
         return Array.from({ length: total }, (_, i) => i + 1);
       }
-
       if (current < 5) {
         return [1, 2, 3, 4, 5, '...', total];
       } else if (current > total - 4) {
@@ -226,12 +219,20 @@ export default {
           drugName: this.searchQuery
         }
         const response = await drugApi.getDrugs(params)
-        this.drugs = response.data.data.rows
-        this.pagination.total = response.data.data.total
+        
+        // **关键修改 1**: 直接从 response.data 中获取数据
+        if (response.data) {
+          this.drugs = response.data.rows || []; // 添加 || [] 以免rows不存在时报错
+          this.pagination.total = response.data.total || 0;
+        } else {
+          this.drugs = [];
+          this.pagination.total = 0;
+        }
+        
         this.selectedDrugIds = [];
       } catch (error) {
         console.error('获取药品数据失败:', error)
-        alert('获取药品数据失败')
+        alert('获取药品数据失败: ' + error.message)
       }
     },
     handleSearch() {
@@ -240,28 +241,21 @@ export default {
     },
     showAddModal() {
       this.isEditing = false
-      this.currentDrug = {
-        id: null,
-        insuranceType: '',
-        chinaName: '',
-        goodsName: '',
-        specifications: '',
-        drugUnit: '',
-        drugManufacturer: '',
-        drugPrice: 0,
-        remarks: ''
-      }
+      this.currentDrug = { id: null, insuranceType: '', chinaName: '', goodsName: '', specifications: '', drugUnit: '', drugManufacturer: '', drugPrice: 0, remarks: '' }
       this.drugModal.show()
     },
     async editDrug(drug) {
       this.isEditing = true
       try {
         const response = await drugApi.getDrugById(drug.id)
-        this.currentDrug = response.data.data
+        
+        // **关键修改 2**: 直接从 response.data 获取单个药品信息
+        this.currentDrug = response.data
+        
         this.drugModal.show()
       } catch (error) {
         console.error('获取药品详情失败:', error)
-        alert('���取药品详情失败')
+        alert('获取药品详情失败: ' + error.message)
       }
     },
     async saveDrug() {
@@ -275,7 +269,7 @@ export default {
         this.drugModal.hide()
       } catch (error) {
         console.error('保存药品失败:', error)
-        alert('保存药品失败')
+        alert('保存药品失败: ' + error.message)
       }
     },
     async deleteSingleDrug(id) {
@@ -292,7 +286,7 @@ export default {
           this.fetchDrugs()
         } catch (error) {
           console.error('删除药品失败:', error)
-          alert('删除药品失败')
+          alert('删除药品失败: ' + error.message)
         }
       }
     },
@@ -307,22 +301,17 @@ export default {
 </script>
 
 <style scoped>
+/* 样式无需改动 */
 .drug-maintenance {
   padding: 20px;
 }
-
-/* 关键修复：优化表格布局 */
 .table-responsive .table {
-  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
   table-layout: fixed;
   width: 100%;
 }
-
 .table-responsive .table th,
 .table-responsive .table td {
-  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
   word-wrap: break-word; 
-  /* 垂直居中对齐，更美观 */
   vertical-align: middle; 
 }
 </style>

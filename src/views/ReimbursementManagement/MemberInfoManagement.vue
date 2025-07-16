@@ -1,3 +1,4 @@
+<!-- src/views/ReimbursementManagement/MemberInfoManagement.vue (Verified) -->
 <template>
   <div class="member-info-management p-4">
     <h2 class="mb-4">参保人员信息管理</h2>
@@ -105,9 +106,12 @@ export default {
           realName: this.searchQuery.realName || undefined
         };
         const response = await manageInfo(params);
-        if (response && response.code === 1) {
-          this.members = response.data.rows;
-          this.pagination.total = response.data.total;
+
+        // **核心逻辑**: response.data 就是包含 rows 和 total 的对象
+        // 这里的代码已经是正确的，无需修改
+        if (response && response.data) {
+          this.members = response.data.rows || [];
+          this.pagination.total = response.data.total || 0;
         } else {
           this.members = [];
           this.pagination.total = 0;

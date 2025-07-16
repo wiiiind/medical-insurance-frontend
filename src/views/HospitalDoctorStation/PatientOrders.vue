@@ -1,3 +1,4 @@
+<!-- src/views/HospitalDoctorStation/PatientOrders.vue (Corrected) -->
 <template>
   <div class="patient-orders container-fluid mt-4">
     <h2 class="mb-4">患者医嘱管理</h2>
@@ -68,38 +69,35 @@
               <form @submit.prevent="submitOrders">
                 <div class="table-responsive">
                   <table class="table table-sm">
-<!-- ... table tag ... -->
-<thead>
-  <tr>
-    <th>名称</th>
-    <!-- 修正#1：用法/数量/医嘱内容/开始时间的列宽可以更灵活 -->
-    <th>用法</th>
-    <th v-if="orderType === 'drug'" style="width: 100px;">数量</th>
-    <th style="width: 25%;">医嘱内容</th>
-    <th style="width: 220px;">开始时间</th>
-    <!-- 修正#2：确保结束时间只在药品类型时显示 -->
-    <th v-if="orderType === 'drug'" style="width: 220px;">结束时间</th>
-    <th style="width: 60px;">操作</th>
-  </tr>
-</thead>
-<tbody>
-  <tr v-if="newOrders.length === 0">
-    <!-- 修正#3：根据是否有结束时间列，动态调整colspan -->
-    <td :colspan="orderType === 'drug' ? 7 : 5" class="text-center text-muted">请从上方搜索并添加医嘱项目</td>
-  </tr>
-  <tr v-for="(order, index) in newOrders" :key="index">
-    <td>{{ order.name }}</td>
-    <td><input type="text" class="form-control form-control-sm" v-model="order.useMethod"></td>
-    <!-- 修正#4：数量输入框也只在药品类型时显示 -->
-    <td v-if="order.type === 'drug'"><input type="number" class="form-control form-control-sm" v-model.number="order.orderNumber" min="1"></td>
-    <td><input type="text" class="form-control form-control-sm" v-model="order.doctorOrder"></td>
-    <td><input type="datetime-local" class="form-control form-control-sm" v-model="order.startTime"></td>
-    <!-- 修正#5：结束时间输入框也只在药品类型时显示 -->
-    <td v-if="order.type === 'drug'"><input type="datetime-local" class="form-control form-control-sm" v-model="order.endTime"></td>
-    <td><button type="button" class="btn btn-sm btn-danger" @click="removeItemFromOrder(index)">X</button></td>
-  </tr>
-</tbody>
-<!-- ... /table ... -->
+                    <thead>
+                      <tr>
+                        <th>名称</th>
+                        <th v-if="orderType === 'drug'" style="width: 90px;">数量</th>
+                        <th>医嘱内容</th>
+                        <th>用法</th>
+                        <th style="width: 150px;">时间</th>
+                        <th v-if="orderType === 'drug'" style="width: 150px;">结束时间</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="newOrders.length === 0">
+                        <td :colspan="orderType === 'drug' ? 6 : 4" class="text-center text-muted">请从上方搜索并添加医嘱项目</td>
+                      </tr>
+                      <tr v-for="(order, index) in newOrders" :key="index">
+                        <td>{{ order.name }}</td>
+                        <td v-if="order.type === 'drug'"><input type="number" class="form-control form-control-sm"
+                            v-model.number="order.orderNumber" min="1"></td>
+                        <td><input type="text" class="form-control form-control-sm" v-model="order.doctorOrder"></td>
+                        <td><input type="text" class="form-control form-control-sm" v-model="order.useMethod"></td>
+                        <td><input type="datetime-local" class="form-control form-control-sm" v-model="order.startTime">
+                        </td>
+                        <td v-if="order.type === 'drug'"><input type="datetime-local"
+                            class="form-control form-control-sm" v-model="order.endTime"></td>
+                        <td><button type="button" class="btn btn-sm btn-danger"
+                            @click="removeItemFromOrder(index)">X</button></td>
+                      </tr>
+                    </tbody>
                   </table>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
@@ -145,32 +143,18 @@ export default {
     this.fetchAdmittedPatients()
   },
   methods: {
-    // 这个函数保持不变，因为它生成的是 <input type="datetime-local"> 需要的格式
-    getInitialDateTimeForInput() {
+    getCurrentDateTime() {
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       return now.toISOString().slice(0, 16);
     },
-
-    // 最终修正 #1: 创建一个新的辅助函数，专门用于生成后端需要的格式
-    formatDateTimeForBackend(dateString) {
-      const date = new Date(dateString);
-      const pad = (num) => num.toString().padStart(2, '0');
-      
-      const year = date.getFullYear();
-      const month = pad(date.getMonth() + 1);
-      const day = pad(date.getDate());
-      const hours = pad(date.getHours());
-      const minutes = pad(date.getMinutes());
-      const seconds = pad(date.getSeconds());
-      
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    },
-
     async fetchAdmittedPatients() {
       try {
         const response = await patientOrdersApi.getAdmittedPatientsForOrders()
-        this.patients = response.data.data
+        
+        // **核心修正 1**: 直接从 response.data 获取患者列表
+        this.patients = response.data || []
+        
       } catch (error) {
         console.error('获取患者列表失败:', error)
       }
@@ -188,6 +172,47 @@ export default {
       this.userTypedQuery = this.searchQuery;
       this.highlightedIndex = -1;
       this.debouncedSearch();
+    },
+    debouncedSearch: _.debounce(function () {
+      this.searchItems();
+    }, 300),
+    async searchItems() {
+        if (this.userTypedQuery.length < 1) {
+            this.searchResults = [];
+            this.showDrugResults = false;
+            return;
+        }
+        this.showDrugResults = true;
+        try {
+            let response;
+            let params;
+
+            if (this.orderType === 'drug') {
+                params = { medicalName: this.userTypedQuery, chinaName: this.userTypedQuery };
+                response = await patientOrdersApi.searchDrugs(params);
+            } else if (this.orderType === 'treatment') {
+                params = { medicalName: this.userTypedQuery, chinaName: this.userTypedQuery };
+                response = await patientOrdersApi.searchTreatments(params);
+            } else { // service
+                params = { medicalName: this.userTypedQuery };
+                response = await medicalServiceApi.getMedicalServices(params);
+            }
+
+            // **核心修正 2**: 统一从 response.data.rows 获取分页数据
+            const sourceData = response.data.rows || [];
+
+            this.searchResults = sourceData.map(item => ({
+                id: item.id,
+                name: item.chinaName || item.medicalName,
+                specifications: item.specifications,
+                medicalInfo: item.medicalInfo,
+                type: this.orderType
+            }));
+            
+        } catch (error) {
+            console.error('搜索项目失败:', error);
+            this.searchResults = [];
+        }
     },
     navigateDown() {
       if (this.highlightedIndex < this.searchResults.length - 1) {
@@ -220,47 +245,6 @@ export default {
         this.addItemToOrder(this.searchResults[this.highlightedIndex]);
       }
     },
-    debouncedSearch: _.debounce(function () {
-      this.searchItems();
-    }, 300),
-    async searchItems() {
-      if (this.userTypedQuery.length < 1) {
-        this.searchResults = [];
-        this.showDrugResults = false;
-        return;
-      }
-      this.showDrugResults = true;
-      try {
-        let response;
-        let params;
-        if (this.orderType === 'drug') {
-            params = { medicalName: this.userTypedQuery, chinaName: this.userTypedQuery };
-            response = await patientOrdersApi.searchDrugs(params);
-        } else if (this.orderType === 'treatment') {
-            params = { medicalName: this.userTypedQuery, chinaName: this.userTypedQuery };
-            response = await patientOrdersApi.searchTreatments(params);
-        } else {
-            params = { medicalName: this.userTypedQuery };
-            response = await medicalServiceApi.getMedicalServices(params);
-        }
-        let sourceData = [];
-        if (this.orderType === 'service') {
-            sourceData = response.data.data || [];
-        } else {
-            sourceData = (response.data.data && response.data.data.rows) || [];
-        }
-        this.searchResults = sourceData.map(item => ({
-            id: item.id,
-            name: item.chinaName || item.medicalName,
-            specifications: item.specifications,
-            medicalInfo: item.medicalInfo,
-            type: this.orderType
-        }));
-      } catch (error) {
-        console.error('搜索项目失败:', error);
-        this.searchResults = [];
-      }
-    },
     addItemToOrder(item) {
       const existingItem = this.newOrders.find(order => order.id === item.id && order.type === item.type);
       if (existingItem) {
@@ -273,8 +257,8 @@ export default {
           orderNumber: 1,
           doctorOrder: '',
           useMethod: '',
-          startTime: this.getInitialDateTimeForInput(),
-          endTime: this.getInitialDateTimeForInput(),
+          startTime: this.getCurrentDateTime(),
+          endTime: this.getCurrentDateTime(),
           status: 1
         });
       }
@@ -292,57 +276,43 @@ export default {
     removeItemFromOrder(index) {
       this.newOrders.splice(index, 1);
     },
-    // 最终修正 #2: 使用新的日期格式化函数来提交数据
     async submitOrders() {
-      if (!this.selectedPatient || this.newOrders.length === 0) return;
-      const groupedOrders = _.groupBy(this.newOrders, 'type');
-      try {
-        const promises = [];
-        if (groupedOrders.drug) {
-            groupedOrders.drug.forEach(order => {
-                promises.push(patientOrdersApi.saveDrugOrders({
-                    patientId: this.selectedPatient.id,
-                    drugId: order.id,
-                    startTime: this.formatDateTimeForBackend(order.startTime),
-                    endTime: this.formatDateTimeForBackend(order.endTime),
-                    doctorOrder: order.doctorOrder,
-                    orderNumber: order.orderNumber,
-                    useMethod: order.useMethod,
-                    status: order.status
-                }));
-            });
+        if (!this.selectedPatient || this.newOrders.length === 0) return;
+
+        const groupedOrders = _.groupBy(this.newOrders, 'type');
+        
+        try {
+            const promises = [];
+
+            if (groupedOrders.drug) {
+                groupedOrders.drug.forEach(order => {
+                    const singleOrderPayload = { patientId: this.selectedPatient.id, drugId: order.id, startTime: order.startTime, endTime: order.endTime, doctorOrder: order.doctorOrder, orderNumber: order.orderNumber, useMethod: order.useMethod, status: order.status };
+                    promises.push(patientOrdersApi.saveDrugOrders(singleOrderPayload));
+                });
+            }
+
+            if (groupedOrders.treatment) {
+                groupedOrders.treatment.forEach(order => {
+                    const singleOrderPayload = { patientId: this.selectedPatient.id, diagnosisId: order.id, orderTime: order.startTime, doctorOrder: order.doctorOrder, useMethod: order.useMethod, status: order.status };
+                    promises.push(patientOrdersApi.saveTreatmentOrders(singleOrderPayload));
+                });
+            }
+
+            if (groupedOrders.service) {
+                groupedOrders.service.forEach(order => {
+                    const singleOrderPayload = { patientId: this.selectedPatient.id, medicalId: order.id, orderTime: order.startTime, doctorOrder: order.doctorOrder, useMethod: order.useMethod, status: order.status };
+                    promises.push(patientOrdersApi.saveServiceOrders(singleOrderPayload));
+                });
+            }
+            
+            await Promise.all(promises);
+
+            alert('医嘱提交成功！');
+            this.newOrders = [];
+        } catch (error) {
+            console.error('提交医嘱失败:', error);
+            alert('提交医嘱失败: ' + error.message);
         }
-        if (groupedOrders.treatment) {
-            groupedOrders.treatment.forEach(order => {
-                promises.push(patientOrdersApi.saveTreatmentOrders({
-                    patientId: this.selectedPatient.id,
-                    diagnosisId: order.id,
-                    orderTime: this.formatDateTimeForBackend(order.startTime),
-                    doctorOrder: order.doctorOrder,
-                    useMethod: order.useMethod,
-                    status: order.status
-                }));
-            });
-        }
-        if (groupedOrders.service) {
-            groupedOrders.service.forEach(order => {
-                promises.push(patientOrdersApi.saveServiceOrders({
-                    patientId: this.selectedPatient.id,
-                    medicalId: order.id,
-                    orderTime: this.formatDateTimeForBackend(order.startTime),
-                    doctorOrder: order.doctorOrder,
-                    useMethod: order.useMethod,
-                    status: order.status
-                }));
-            });
-        }
-        await Promise.all(promises);
-        alert('医嘱提交成功！');
-        this.newOrders = [];
-      } catch (error) {
-        console.error('提交医嘱失败:', error);
-        alert('提交医嘱失败');
-      }
     }
   }
 }
@@ -352,24 +322,18 @@ export default {
 .patient-orders {
   padding: 20px;
 }
-
 .list-group-item-action {
   cursor: pointer;
 }
-
-/* 关键修复：优化表格布局 */
 .table-responsive .table {
   table-layout: fixed;
   width: 100%;
 }
-
 .table-responsive .table th,
 .table-responsive .table td {
   word-wrap: break-word;
   vertical-align: middle;
 }
-
-/* 为搜索结果容器添加滚动条样式 */
 .search-results-container {
   max-height: 240px;
   overflow-y: auto;

@@ -1,3 +1,4 @@
+<!-- src/views/MedicalInsuranceData/MedicalServiceMaintenance.vue (Corrected) -->
 <template>
   <div class="medical-service-maintenance container-fluid mt-4">
     <h2 class="mb-4">医疗服务设施数据维护</h2>
@@ -230,12 +231,20 @@ export default {
           medicalName: this.searchQuery
         }
         const response = await medicalServiceApi.getMedicalServices(params)
-        this.services = response.data.data.rows
-        this.pagination.total = response.data.data.total
+        
+        // **核心修正 1**: 直接从 response.data 中获取分页数据
+        if (response.data) {
+          this.services = response.data.rows || [];
+          this.pagination.total = response.data.total || 0;
+        } else {
+          this.services = [];
+          this.pagination.total = 0;
+        }
+
         this.selectedServiceIds = [];
       } catch (error) {
         console.error('获取医疗服务数据失败:', error)
-        alert('获取医疗服务数据失败')
+        alert('获取医疗服务数据失败: ' + error.message)
       }
     },
     handleSearch() {
@@ -262,11 +271,14 @@ export default {
       this.isEditing = true
       try {
         const response = await medicalServiceApi.getMedicalServiceById(service.id)
-        this.currentService = response.data.data
+
+        // **核心修正 2**: 直接从 response.data 获取单个服务信息
+        this.currentService = response.data
+        
         this.serviceModal.show()
       } catch (error) {
         console.error('获取医疗服务详情失败:', error)
-        alert('获取医疗服务详情失败')
+        alert('获取医疗服务详情失败: ' + error.message)
       }
     },
     async saveService() {
@@ -280,7 +292,7 @@ export default {
         this.serviceModal.hide()
       } catch (error) {
         console.error('保存医疗服务失败:', error)
-        alert('保存医疗服务失败')
+        alert('保存医疗服务失败: ' + error.message)
       }
     },
     async deleteSingleService(id) {
@@ -297,7 +309,7 @@ export default {
           this.fetchServices()
         } catch (error) {
           console.error('删除医疗服务失败:', error)
-          alert('删除医疗服务失败')
+          alert('删除医疗服务失败: ' + error.message)
         }
       }
     },
@@ -315,19 +327,13 @@ export default {
 .medical-service-maintenance {
   padding: 20px;
 }
-
-/* 关键修复：优化表格布局 */
 .table-responsive .table {
-  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
   table-layout: fixed;
   width: 100%;
 }
-
 .table-responsive .table th,
 .table-responsive .table td {
-  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
   word-wrap: break-word; 
-  /* 垂直居中对齐，更美观 */
   vertical-align: middle; 
 }
 </style>

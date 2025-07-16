@@ -1,3 +1,4 @@
+<!-- src/views/MedicalInsuranceData/DrugReimbursementRatioMaintenance.vue (Corrected) -->
 <template>
   <div class="drug-reimbursement-ratio-maintenance container-fluid mt-4">
     <h2 class="mb-4">药品报销比例维护</h2>
@@ -119,10 +120,13 @@ export default {
     async fetchRatios() {
       try {
         const response = await drugReimbursementApi.getDrugReimbursements()
-        this.ratios = response.data.data
+        
+        // **核心修正**: 直接使用 response.data，并提供空数组作为后备
+        this.ratios = response.data || []
+
       } catch (error) {
         console.error('获取药品报销比例失败:', error)
-        alert('获取药品报销比例失败')
+        alert('获取药品报销比例失败: ' + error.message)
       }
     },
     showAddModal() {
@@ -153,7 +157,7 @@ export default {
         this.ratioModal.hide()
       } catch (error) {
         console.error('保存药品报销比例失败:', error)
-        alert('保存药品报销比例失败')
+        alert('保存药品报销比例失败: ' + error.message)
       }
     },
     async deleteRatio(id) {
@@ -163,7 +167,7 @@ export default {
           this.fetchRatios()
         } catch (error) {
           console.error('删除药品报销比例失败:', error)
-          alert('删除药品报销比例失败')
+          alert('删除药品报销比例失败: ' + error.message)
         }
       }
     }
@@ -175,19 +179,13 @@ export default {
 .drug-reimbursement-ratio-maintenance {
   padding: 20px;
 }
-
-/* 关键修复：优化表格布局 */
 .table-responsive .table {
-  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
   table-layout: fixed;
   width: 100%;
 }
-
 .table-responsive .table th,
 .table-responsive .table td {
-  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
   word-wrap: break-word; 
-  /* 垂直居中对齐，更美观 */
   vertical-align: middle; 
 }
 </style>

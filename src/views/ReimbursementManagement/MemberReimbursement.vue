@@ -1,3 +1,4 @@
+<!-- src/views/ReimbursementManagement/MemberReimbursement.vue (Correct, with Charts) -->
 <template>
   <div class="member-reimbursement p-4">
     <h2 class="mb-4">参保人员费用报销</h2>
@@ -57,7 +58,7 @@
       </ul>
     </nav>
 
-    <!-- 费用详情和饼图 (已移除报销表单) -->
+    <!-- 费用详情和饼图 -->
     <div v-if="selectedMember" class="mt-5">
       <h3>{{ selectedMember.realName }} 的费用详情</h3>
       <div v-if="detailsLoading" class="text-center">费用详情加载中...</div>
@@ -124,7 +125,7 @@
           </tbody>
         </table>
 
-        <!-- 饼图容器 -->
+        <!-- **饼图容器在这里** -->
         <div class="row mt-5">
           <div class="col-md-6">
             <div v-if="categoryPieOptions" class="chart-container">
@@ -150,17 +151,12 @@
 </template>
 
 <script>
-// 移除了不再需要的 getFeeReimbursementSummary
+// **确保所有需要的函数都被正确导入**
 import { findPatInfo, getFeeReimbursementDrugs, getFeeReimbursementOtherItems, getFeeDetailPieChart } from '@/api/reimbursement';
-
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { PieChart } from 'echarts/charts';
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-} from 'echarts/components';
+import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
 
 use([
@@ -170,7 +166,6 @@ use([
   TooltipComponent,
   LegendComponent,
 ]);
-
 
 export default {
   name: 'MemberReimbursement',
@@ -182,37 +177,26 @@ export default {
       loading: false,
       detailsLoading: false,
       members: [],
-      searchQuery: {
-        realName: ''
-      },
-      pagination: {
-        page: 1,
-        pageSize: 10,
-        total: 0
-      },
+      searchQuery: { realName: '' },
+      pagination: { page: 1, pageSize: 10, total: 0 },
       selectedMember: null,
       drugData: [],
       diagnosisData: [],
       serviceData: [],
+      // **确保图表的数据存在**
       categoryPieOptions: null,
       drugPieOptions: null,
     };
   },
   computed: {
-    totalPages() {
-      return Math.ceil(this.pagination.total / this.pagination.pageSize);
-    },
+    totalPages() { return Math.ceil(this.pagination.total / this.pagination.pageSize); },
     pages() {
       const pages = [];
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= this.totalPages; i++) { pages.push(i); }
       return pages;
     }
   },
-  created() {
-    this.fetchMembers();
-  },
+  created() { this.fetchMembers(); },
   methods: {
     async fetchMembers() {
       this.loading = true;
@@ -224,7 +208,7 @@ export default {
           realName: this.searchQuery.realName || undefined
         };
         const response = await findPatInfo(params);
-        if (response && response.code === 1 && response.data) {
+        if (response && response.data) {
           this.members = response.data.rows || [];
           this.pagination.total = response.data.total || 0;
         } else {
@@ -262,43 +246,26 @@ export default {
       this.drugPieOptions = null;
 
       try {
-        // 只调用需要的API
+        // **确保所有 API 都被正确调用**
         const drugPromise = getFeeReimbursementDrugs('1', this.selectedMember.id);
         const otherItemsPromise = getFeeReimbursementOtherItems(this.selectedMember.id);
         const categoryPiePromise = getFeeDetailPieChart('1');
         const drugPiePromise = getFeeDetailPieChart('2');
 
-        const [
-          drugRes, 
-          otherItemsRes, 
-          categoryPieRes,
-          drugPieRes
-        ] = await Promise.all([
-          drugPromise, 
-          otherItemsPromise, 
-          categoryPiePromise, 
-          drugPiePromise
+        const [ drugRes, otherItemsRes, categoryPieRes, drugPieRes ] = await Promise.all([
+          drugPromise, otherItemsPromise, categoryPiePromise, drugPiePromise
         ]);
 
-        if (drugRes && drugRes.code === 1) this.drugData = drugRes.data || [];
-        if (otherItemsRes && otherItemsRes.code === 1) {
+        if (drugRes) this.drugData = drugRes.data || [];
+        if (otherItemsRes && otherItemsRes.data) {
             this.serviceData = otherItemsRes.data.xlist || [];
             this.diagnosisData = otherItemsRes.data.ylist || [];
         }
-
-        if (categoryPieRes && categoryPieRes.code === 1) {
-          this.categoryPieOptions = this.buildPieOptions(
-            '各费用品类占比', 
-            categoryPieRes.data.xlist, 
-            categoryPieRes.data.ylist
-          );
+        if (categoryPieRes && categoryPieRes.data) {
+          this.categoryPieOptions = this.buildPieOptions('各费用品类占比', categoryPieRes.data.xlist, categoryPieRes.data.ylist);
         }
-        if (drugPieRes && drugPieRes.code === 1) {
-          this.drugPieOptions = this.buildPieOptions(
-            '各类药品费用占比',
-            drugPieRes.data.xlist,
-            drugPieRes.data.ylist
-          );
+        if (drugPieRes && drugPieRes.data) {
+          this.drugPieOptions = this.buildPieOptions('各类药品费用占比', drugPieRes.data.xlist, drugPieRes.data.ylist);
         }
 
       } catch (error) {
@@ -308,28 +275,15 @@ export default {
       }
     },
     buildPieOptions(title, labels, values) {
-      if (!labels || !values || labels.length === 0) {
-        return null;
-      }
+      if (!labels || !values || labels.length === 0) return null;
       const chartData = labels.map((label, index) => ({
         name: label,
         value: values[index] || 0,
       }));
-
       return {
-        title: {
-          text: title,
-          left: 'center',
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b} : {c} ({d}%)'
-        },
-        legend: {
-          orient: 'vertical',
-          left: 'left',
-          top: 'middle'
-        },
+        title: { text: title, left: 'center' },
+        tooltip: { trigger: 'item', formatter: '{b} : {c} ({d}%)' },
+        legend: { orient: 'vertical', left: 'left', top: 'middle' },
         series: [
           {
             name: '费用占比',
@@ -337,25 +291,10 @@ export default {
             radius: ['40%', '70%'],
             center: ['65%', '50%'],
             avoidLabelOverlap: false,
-            itemStyle: {
-              borderRadius: 10,
-              borderColor: '#fff',
-              borderWidth: 2
-            },
-            label: {
-              show: false,
-              position: 'center'
-            },
-            emphasis: {
-              label: {
-                show: true,
-                fontSize: '20',
-                fontWeight: 'bold'
-              }
-            },
-            labelLine: {
-              show: false
-            },
+            itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+            label: { show: false, position: 'center' },
+            emphasis: { label: { show: true, fontSize: '20', fontWeight: 'bold' } },
+            labelLine: { show: false },
             data: chartData,
           },
         ],
@@ -366,22 +305,14 @@ export default {
 </script>
 
 <style scoped>
-.member-reimbursement {
-  padding: 20px;
-}
-.table-hover tbody tr:hover {
-  cursor: pointer;
-}
-.pagination {
-  justify-content: flex-end;
-}
+.member-reimbursement { padding: 20px; }
+.table-hover tbody tr:hover { cursor: pointer; }
+.pagination { justify-content: flex-end; }
 .chart-container {
   border: 1px solid #dee2e6;
   border-radius: .25rem;
   padding: 1rem;
-  height: 420px; /* 给予容器一个固定的高度 */
+  height: 420px;
 }
-.chart {
-  height: 400px; /* 图表本身的高度 */
-}
+.chart { height: 400px; }
 </style>

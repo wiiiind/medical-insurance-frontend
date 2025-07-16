@@ -1,3 +1,4 @@
+<!-- src/views/MedicalInsuranceData/TreatmentItemMaintenance.vue (Corrected) -->
 <template>
   <div class="treatment-item-maintenance container-fluid mt-4">
     <h2 class="mb-4">诊疗项目数据维护</h2>
@@ -230,12 +231,19 @@ export default {
           medicalName: this.searchQuery
         }
         const response = await treatmentApi.getTreatments(params)
-        this.treatmentItems = response.data.data.rows
-        this.pagination.total = response.data.data.total
+
+        // **核心修正 1**: 直接从 response.data 中获取分页数据
+        if (response.data) {
+          this.treatmentItems = response.data.rows || [];
+          this.pagination.total = response.data.total || 0;
+        } else {
+          this.treatmentItems = [];
+          this.pagination.total = 0;
+        }
         this.selectedItemIds = [];
       } catch (error) {
         console.error('获取诊疗项目数据失败:', error)
-        alert('获取诊疗项目数��失败')
+        alert('获取诊疗项目数据失败: ' + error.message)
       }
     },
     handleSearch() {
@@ -262,11 +270,14 @@ export default {
       this.isEditing = true
       try {
         const response = await treatmentApi.getTreatmentById(item.id)
-        this.currentTreatmentItem = response.data.data
+
+        // **核心修正 2**: 直接从 response.data 获取单个项目信息
+        this.currentTreatmentItem = response.data
+        
         this.treatmentItemModal.show()
       } catch (error) {
         console.error('获取诊疗项目详情失败:', error)
-        alert('获取诊疗项目详情失败')
+        alert('获取诊疗项目详情失败: ' + error.message)
       }
     },
     async saveTreatmentItem() {
@@ -280,7 +291,7 @@ export default {
         this.treatmentItemModal.hide()
       } catch (error) {
         console.error('保存诊疗项目失败:', error)
-        alert('保存诊疗项目��败')
+        alert('保存诊疗项目失败: ' + error.message)
       }
     },
     async deleteSingleItem(id) {
@@ -297,7 +308,7 @@ export default {
           this.fetchTreatmentItems()
         } catch (error) {
           console.error('删除诊疗项目失败:', error)
-          alert('删除诊疗项目失败')
+          alert('删除诊疗项目失败: ' + error.message)
         }
       }
     },
@@ -315,19 +326,13 @@ export default {
 .treatment-item-maintenance {
   padding: 20px;
 }
-
-/* 关键修复：优化表格布局 */
 .table-responsive .table {
-  /* 强制表格宽度为100%，并使用固定布局算法，让浏览器自动计算列宽 */
   table-layout: fixed;
   width: 100%;
 }
-
 .table-responsive .table th,
 .table-responsive .table td {
-  /* 允许长单词或字符串在单元格内换行，防止内容撑破表格 */
   word-wrap: break-word; 
-  /* 垂直居中对齐，更美观 */
   vertical-align: middle; 
 }
 </style>

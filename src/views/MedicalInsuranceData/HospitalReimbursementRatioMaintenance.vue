@@ -1,3 +1,4 @@
+<!-- src/views/MedicalInsuranceData/HospitalReimbursementRatioMaintenance.vue (Corrected) -->
 <template>
   <div class="hospital-reimbursement-ratio-maintenance p-4">
     <h2 class="mb-4">医院报销比例维护</h2>
@@ -123,10 +124,14 @@ export default {
       this.loading = true;
       try {
         const response = await getHospitalRatio(this.activeLevel);
-        if (response.data && response.data.code === 1) { // 假设成功码为1
-          this.ratios = response.data.data;
+
+        // **核心修正**: 直接使用 response.data
+        // response 本身就是 { code: 1, msg: '...', data: [...] }
+        if (response.code === 1) {
+          this.ratios = response.data || [];
         } else {
           this.ratios = [];
+          console.error(`获取数据失败:`, response.msg);
         }
       } catch (error) {
         console.error(`获取数据失败:`, error);
@@ -171,7 +176,7 @@ export default {
         this.modalInstance.hide();
       } catch (error) {
         console.error('保存失败:', error);
-        alert('操作失败，请查看控制台获取更多信息。');
+        alert('操作失败: ' + error.message);
       }
     },
     async handleDelete(id) {
@@ -181,7 +186,7 @@ export default {
           this.fetchRatios();
         } catch (error) {
           console.error('删除失败:', error);
-          alert('操作失败，请查看控制台获取更多信息。');
+          alert('操作失败: ' + error.message);
         }
       }
     },

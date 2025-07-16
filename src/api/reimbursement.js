@@ -1,43 +1,9 @@
-import axios from 'axios';
+// src/api/reimbursement.js (The Final, Correct Version)
 
-// Create axios instance
-const service = axios.create({
-  baseURL: '/api', // url = base url + request url
-  timeout: 5000 // request timeout
-});
+import service from '@/utils/request.js';
 
-// Request interceptor
-service.interceptors.request.use(
-  config => {
-    // Do something before request is sent
-    return config;
-  },
-  error => {
-    // Do something with request error
-    console.log(error); // for debug
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
-service.interceptors.response.use(
-  response => {
-    const res = response.data;
-    console.log('Backend Response Data:', res); // Add this line to log the response
-
-    // If the custom code is not 1, it is judged as an error.
-    if (res.code !== 1) {
-      console.error('Error:', res.msg || 'Error');
-      return Promise.reject(new Error(res.msg || 'Error'));
-    } else {
-      return res;
-    }
-  },
-  error => {
-    console.error('API Request Error:', error); // Log the full error object
-    return Promise.reject(error);
-  }
-);
+// **之前所有的 axios.create 和 interceptors 代码已全部删除**
+// 现在所有函数都将使用全局的、带 token 和统一响应处理的 service 实例
 
 export function manageInfo(params) {
   return service({
@@ -103,12 +69,13 @@ export function getFeeReimbursementOtherItems(patientId) {
 
 export function getFeeReimbursementSummary(patientId) {
   return service({
-    url: '/expReimburse/fee/rebursement',
+    url: '/expReimburse/fee/reimbursement',
     method: 'get',
     params: { patientId }
   })
 }
 
+// 确保 getFeeDetailPieChart 函数存在
 export function getFeeDetailPieChart(pieType) {
   return service({
     url: `/expReimburse/fee/detail/${pieType}`,

@@ -1,3 +1,4 @@
+<!-- src/views/HospitalDoctorStation/PatientDiagnosis.vue (Corrected) -->
 <template>
   <div class="patient-diagnosis container-fluid mt-4">
     <h2 class="mb-4">患者诊断</h2>
@@ -118,7 +119,10 @@ export default {
     async fetchPatients() {
       try {
         const response = await patientOrdersApi.getAdmittedPatientsForOrders();
-        this.patients = response.data.data;
+        
+        // **核心修正 1**: 直接从 response.data 获取患者列表
+        this.patients = response.data || [];
+
       } catch (error) {
         console.error('获取患者列表失败:', error);
       }
@@ -135,24 +139,25 @@ export default {
     debouncedSearchDisease: _.debounce(function() {
       this.searchDiseases();
     }, 300),
-async searchDiseases() {
-  if (this.userTypedQuery.length < 1) {
-    this.diseaseSearchResults = [];
-    this.showResults = false;
-    return;
-  }
-  try {
-    // 调用指向 /main 的 API
-    const response = await diagnosisApi.searchDiseases({ diseaseName: this.userTypedQuery });
-    // 关键修复：添加了安全检查，以防止在API返回空数据时程序崩溃
-    this.diseaseSearchResults = response.data?.data || [];
-    this.showResults = true;
-  } catch (error) {
-    console.error('搜索疾病失败:', error);
-    this.diseaseSearchResults = [];
-    this.showResults = false;
-  }
-},
+    async searchDiseases() {
+      if (this.userTypedQuery.length < 1) {
+        this.diseaseSearchResults = [];
+        this.showResults = false;
+        return;
+      }
+      try {
+        const response = await diagnosisApi.searchDiseases({ diseaseName: this.userTypedQuery });
+
+        // **核心修正 2**: 直接从 response.data 获取疾病搜索结果
+        this.diseaseSearchResults = response.data || [];
+
+        this.showResults = true;
+      } catch (error) {
+        console.error('搜索疾病失败:', error);
+        this.diseaseSearchResults = [];
+        this.showResults = false;
+      }
+    },
     navigateDown() {
       if (this.highlightedIndex < this.diseaseSearchResults.length - 1) {
         this.highlightedIndex++;
@@ -167,15 +172,9 @@ async searchDiseases() {
     },
     handleTab(event) {
       if (this.showResults && this.diseaseSearchResults.length > 0) {
-        // If there are search results and the list is visible,
-        // pressing Tab should navigate down the list.
         this.navigateDown();
-        // Prevent default tab behavior (moving focus to next element)
-        // because we are handling navigation within the search results.
         event.preventDefault();
       }
-      // If no search results or list not visible, allow default tab behavior.
-      // No need to preventDefault here, as we want the default behavior.
     },
     updatePreview() {
       if (this.highlightedIndex === -1) {
@@ -228,7 +227,7 @@ async searchDiseases() {
         this.resetCurrentDiagnosis();
       } catch (error) {
         console.error('保存诊断信息失败:', error);
-        alert('保存诊断信息失败');
+        alert('保存诊断信息失败: ' + error.message);
       }
     },
     resetCurrentDiagnosis() {
@@ -255,8 +254,6 @@ async searchDiseases() {
 .list-group-item-action {
   cursor: pointer;
 }
-
-/* 为搜索结果容器添加滚动条样式 */
 .search-results-container {
   max-height: 240px; 
   overflow-y: auto;

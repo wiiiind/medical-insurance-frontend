@@ -1,3 +1,4 @@
+<!-- src/views/ReimbursementManagement/MemberExpenseQuery.vue (Corrected) -->
 <template>
   <div class="member-expense-query p-4">
     <h2 class="mb-4">参保人员费用查询</h2>
@@ -129,8 +130,7 @@
 </template>
 
 <script>
-// 修正 #1: 移除 findDiagnosisInfo，因为它不属于这个页面的逻辑
-import { findPatInfo, getFeeReimbursementDrugs, getFeeReimbursementOtherItems } from '@/api/reimbursement';
+import { findPatInfo, getFeeReimbursementDrugs, getFeeReimbursementOtherItems, findDiagnosisInfo } from '@/api/reimbursement';
 
 export default {
   name: 'MemberExpenseQuery',
@@ -174,18 +174,20 @@ export default {
       this.selectedMember = null;
       try {
         const params = {
+          // **核心修正 1**: reimbursement.js 里的 API 可能需要 'current' 和 'size' 作为分页参数名
           current: this.pagination.page,
           size: this.pagination.pageSize,
           realName: this.searchQuery.realName || undefined
         };
         const response = await findPatInfo(params);
-        if (response && response.code === 1 && response.data) {
+
+        // 这里的逻辑已经是正确的
+        if (response && response.data) {
           this.members = response.data.rows || [];
           this.pagination.total = response.data.total || 0;
         } else {
           this.members = [];
           this.pagination.total = 0;
-          console.error('获取参保人员列表失败:', response ? response.msg : '请求失败');
         }
       } catch (error) {
         console.error('请求异常:', error);
@@ -218,22 +220,19 @@ export default {
       this.serviceData = [];
 
       try {
-        // 修正 #2: 只调用两个API
         const drugPromise = getFeeReimbursementDrugs('1', this.selectedMember.id);
         const otherItemsPromise = getFeeReimbursementOtherItems(this.selectedMember.id);
+        const diagnosisPromise = findDiagnosisInfo(this.selectedMember.id);
 
-        const [drugRes, otherItemsRes] = await Promise.all([drugPromise, otherItemsPromise]);
-
-        // --- 最终的数据解析逻辑 ---
-        if (drugRes && drugRes.code === 1) {
-          this.drugData = drugRes.data || [];
-        }
+        const [drugRes, otherItemsRes, diagnosisRes] = await Promise.all([drugPromise, otherItemsPromise, diagnosisPromise]);
         
-        if (otherItemsRes && otherItemsRes.code === 1 && otherItemsRes.data) {
-          // 修正 #3: 同时从 otherItemsRes 中解析 xlist 和 ylist
+        // **核心修正 2**: 统一使用 response.data 来获取数据
+        if (drugRes) this.drugData = drugRes.data || [];
+        if (otherItemsRes && otherItemsRes.data) {
           this.serviceData = otherItemsRes.data.xlist || [];
-          this.diagnosisData = otherItemsRes.data.ylist || [];
         }
+        if (diagnosisRes) this.diagnosisData = diagnosisRes.data || [];
+
       } catch (error) {
         console.error('获取费用详情失败:', error);
       } finally {
