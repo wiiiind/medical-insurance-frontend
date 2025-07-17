@@ -1,4 +1,4 @@
-<!-- src/views/HospitalDoctorStation/PatientOrders.vue (Corrected) -->
+<!-- src/views/HospitalDoctorStation/PatientOrders.vue (Final Date Fix) -->
 <template>
   <div class="patient-orders container-fluid mt-4">
     <h2 class="mb-4">患者医嘱管理</h2>
@@ -82,7 +82,7 @@
                     </thead>
                     <tbody>
                       <tr v-if="newOrders.length === 0">
-                        <td :colspan="orderType === 'drug' ? 6 : 4" class="text-center text-muted">请从上方搜索并添加医嘱项目</td>
+                        <td :colspan="orderType === 'drug' ? 7 : 5" class="text-center text-muted">请从上方搜索并添加医嘱项目</td>
                       </tr>
                       <tr v-for="(order, index) in newOrders" :key="index">
                         <td>{{ order.name }}</td>
@@ -113,6 +113,7 @@
 </template>
 
 <script>
+// Script has changes
 import * as patientOrdersApi from '@/api/patientOrders.js'
 import * as medicalServiceApi from '@/api/medicalService.js'
 import _ from 'lodash';
@@ -137,24 +138,29 @@ export default {
       this.searchQuery = '';
       this.searchResults = [];
       this.showDrugResults = false;
+      this.newOrders = [];
     }
   },
   mounted() {
     this.fetchAdmittedPatients()
   },
   methods: {
+    // Helper function to get YYYY-MM-DDTHH:mm string for the input
     getCurrentDateTime() {
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       return now.toISOString().slice(0, 16);
     },
+    // *** NEW HELPER FUNCTION: This is the core of the fix ***
+    // Converts "YYYY-MM-DDTHH:mm" to "YYYY-MM-DD HH:mm:ss"
+    formatDateForBackend(localDateTimeString) {
+      if (!localDateTimeString) return null;
+      return localDateTimeString.replace('T', ' ') + ':00';
+    },
     async fetchAdmittedPatients() {
       try {
         const response = await patientOrdersApi.getAdmittedPatientsForOrders()
-        
-        // **核心修正 1**: 直接从 response.data 获取患者列表
         this.patients = response.data || []
-        
       } catch (error) {
         console.error('获取患者列表失败:', error)
       }
@@ -197,10 +203,7 @@ export default {
                 params = { medicalName: this.userTypedQuery };
                 response = await medicalServiceApi.getMedicalServices(params);
             }
-
-            // **核心修正 2**: 统一从 response.data.rows 获取分页数据
             const sourceData = response.data.rows || [];
-
             this.searchResults = sourceData.map(item => ({
                 id: item.id,
                 name: item.chinaName || item.medicalName,
@@ -208,7 +211,6 @@ export default {
                 medicalInfo: item.medicalInfo,
                 type: this.orderType
             }));
-            
         } catch (error) {
             console.error('搜索项目失败:', error);
             this.searchResults = [];
@@ -278,35 +280,62 @@ export default {
     },
     async submitOrders() {
         if (!this.selectedPatient || this.newOrders.length === 0) return;
-
         const groupedOrders = _.groupBy(this.newOrders, 'type');
         
         try {
             const promises = [];
-
             if (groupedOrders.drug) {
                 groupedOrders.drug.forEach(order => {
-                    const singleOrderPayload = { patientId: this.selectedPatient.id, drugId: order.id, startTime: order.startTime, endTime: order.endTime, doctorOrder: order.doctorOrder, orderNumber: order.orderNumber, useMethod: order.useMethod, status: order.status };
+                    const singleOrderPayload = { 
+                        patientId: this.selectedPatient.id, 
+                        drugId: order.id, 
+                        // Using the new helper function
+                        startTime: this.formatDateForBackend(order.startTime), 
+                        endTime: this.formatDateForBackend(order.endTime), 
+                        doctorOrder: order.doctorOrder, 
+                        orderNumber: order.orderNumber, 
+                        useMethod: order.useMethod, 
+                        status: order.status 
+                    };
+                    // As requested, logging the payload
+                    console.log('Sending DRUG payload:', singleOrderPayload);
                     promises.push(patientOrdersApi.saveDrugOrders(singleOrderPayload));
                 });
             }
 
             if (groupedOrders.treatment) {
                 groupedOrders.treatment.forEach(order => {
-                    const singleOrderPayload = { patientId: this.selectedPatient.id, diagnosisId: order.id, orderTime: order.startTime, doctorOrder: order.doctorOrder, useMethod: order.useMethod, status: order.status };
+                    const singleOrderPayload = { 
+                        patientId: this.selectedPatient.id, 
+                        diagnosisId: order.id, 
+                        // Using the new helper function
+                        orderTime: this.formatDateForBackend(order.startTime), 
+                        doctorOrder: order.doctorOrder, 
+                        useMethod: order.useMethod, 
+                        status: order.status 
+                    };
+                    console.log('Sending TREATMENT payload:', singleOrderPayload);
                     promises.push(patientOrdersApi.saveTreatmentOrders(singleOrderPayload));
                 });
             }
 
             if (groupedOrders.service) {
                 groupedOrders.service.forEach(order => {
-                    const singleOrderPayload = { patientId: this.selectedPatient.id, medicalId: order.id, orderTime: order.startTime, doctorOrder: order.doctorOrder, useMethod: order.useMethod, status: order.status };
+                    const singleOrderPayload = { 
+                        patientId: this.selectedPatient.id, 
+                        medicalId: order.id, 
+                        // Using the new helper function
+                        orderTime: this.formatDateForBackend(order.startTime), 
+                        doctorOrder: order.doctorOrder, 
+                        useMethod: order.useMethod, 
+                        status: order.status 
+                    };
+                    console.log('Sending SERVICE payload:', singleOrderPayload);
                     promises.push(patientOrdersApi.saveServiceOrders(singleOrderPayload));
                 });
             }
             
             await Promise.all(promises);
-
             alert('医嘱提交成功！');
             this.newOrders = [];
         } catch (error) {
@@ -319,6 +348,7 @@ export default {
 </script>
 
 <style scoped>
+/* Unchanged styles */
 .patient-orders {
   padding: 20px;
 }
@@ -326,7 +356,7 @@ export default {
   cursor: pointer;
 }
 .table-responsive .table {
-  table-layout: fixed;
+  table-layout: auto;
   width: 100%;
 }
 .table-responsive .table th,

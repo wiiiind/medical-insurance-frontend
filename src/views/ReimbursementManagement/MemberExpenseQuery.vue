@@ -169,34 +169,36 @@ export default {
     this.fetchMembers();
   },
   methods: {
-    async fetchMembers() {
-      this.loading = true;
-      this.selectedMember = null;
-      try {
-        const params = {
-          // **核心修正 1**: reimbursement.js 里的 API 可能需要 'current' 和 'size' 作为分页参数名
-          current: this.pagination.page,
-          size: this.pagination.pageSize,
-          realName: this.searchQuery.realName || undefined
-        };
-        const response = await findPatInfo(params);
+// In the 'methods' object, replace the entire fetchMembers function:
 
-        // 这里的逻辑已经是正确的
-        if (response && response.data) {
-          this.members = response.data.rows || [];
-          this.pagination.total = response.data.total || 0;
-        } else {
-          this.members = [];
-          this.pagination.total = 0;
-        }
-      } catch (error) {
-        console.error('请求异常:', error);
-        this.members = [];
-        this.pagination.total = 0;
-      } finally {
-        this.loading = false;
-      }
-    },
+async fetchMembers() {
+  this.loading = true;
+  this.selectedMember = null;
+  try {
+    // Parameters updated to match the OpenAPI specification
+    const params = {
+      page: this.pagination.page,
+      pageSize: this.pagination.pageSize,
+      realName: this.searchQuery.realName || undefined
+    };
+    const response = await findPatInfo(params);
+
+    // This logic is correct and will now work with the paginated data
+    if (response && response.data) {
+      this.members = response.data.rows || [];
+      this.pagination.total = response.data.total || 0;
+    } else {
+      this.members = [];
+      this.pagination.total = 0;
+    }
+  } catch (error) {
+    console.error('请求异常:', error);
+    this.members = [];
+    this.pagination.total = 0;
+  } finally {
+    this.loading = false;
+  }
+},
     handleSearch() {
       this.pagination.page = 1;
       this.fetchMembers();

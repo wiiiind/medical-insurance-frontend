@@ -152,7 +152,7 @@
 
 <script>
 // **确保所有需要的函数都被正确导入**
-import { findPatInfo, getFeeReimbursementDrugs, getFeeReimbursementOtherItems, getFeeDetailPieChart } from '@/api/reimbursement';
+import { getFeeReimbursementMembers, getFeeReimbursementDrugs, getFeeReimbursementOtherItems, getFeeDetailPieChart } from '@/api/reimbursement';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { PieChart } from 'echarts/charts';
@@ -198,29 +198,37 @@ export default {
   },
   created() { this.fetchMembers(); },
   methods: {
-    async fetchMembers() {
-      this.loading = true;
-      this.selectedMember = null;
-      try {
-        const params = {
-          current: this.pagination.page,
-          size: this.pagination.pageSize,
-          realName: this.searchQuery.realName || undefined
-        };
-        const response = await findPatInfo(params);
-        if (response && response.data) {
-          this.members = response.data.rows || [];
-          this.pagination.total = response.data.total || 0;
-        } else {
-          this.members = [];
-          this.pagination.total = 0;
-        }
-      } catch (error) {
-        console.error('请求异常:', error);
-      } finally {
-        this.loading = false;
-      }
-    },
+
+async fetchMembers() {
+  this.loading = true;
+  this.selectedMember = null;
+  try {
+    // Corrected pagination parameters and added console.log
+    const params = {
+      page: this.pagination.page,
+      pageSize: this.pagination.pageSize,
+      realName: this.searchQuery.realName || undefined
+    };
+
+    // As requested, logging the parameters sent to the API
+    console.log('Fetching members with params:', params);
+    
+    // Corrected the API function call
+    const response = await getFeeReimbursementMembers(params);
+
+    if (response && response.data) {
+      this.members = response.data.rows || [];
+      this.pagination.total = response.data.total || 0;
+    } else {
+      this.members = [];
+      this.pagination.total = 0;
+    }
+  } catch (error) {
+    console.error('请求异常:', error);
+  } finally {
+    this.loading = false;
+  }
+},
     handleSearch() {
       this.pagination.page = 1;
       this.fetchMembers();
@@ -231,49 +239,56 @@ export default {
         this.fetchMembers();
       }
     },
-    async selectMember(member) {
-      if (this.selectedMember && this.selectedMember.id === member.id) {
-        this.selectedMember = null;
-        return;
-      }
-      this.selectedMember = member;
-      this.detailsLoading = true;
-      
-      this.drugData = [];
-      this.diagnosisData = [];
-      this.serviceData = [];
-      this.categoryPieOptions = null;
-      this.drugPieOptions = null;
 
-      try {
-        // **确保所有 API 都被正确调用**
-        const drugPromise = getFeeReimbursementDrugs('1', this.selectedMember.id);
-        const otherItemsPromise = getFeeReimbursementOtherItems(this.selectedMember.id);
-        const categoryPiePromise = getFeeDetailPieChart('1');
-        const drugPiePromise = getFeeDetailPieChart('2');
 
-        const [ drugRes, otherItemsRes, categoryPieRes, drugPieRes ] = await Promise.all([
-          drugPromise, otherItemsPromise, categoryPiePromise, drugPiePromise
-        ]);
+async selectMember(member) {
+  if (this.selectedMember && this.selectedMember.id === member.id) {
+    this.selectedMember = null;
+    return;
+  }
+  this.selectedMember = member;
+  this.detailsLoading = true;
+  
+  this.drugData = [];
+  this.diagnosisData = [];
+  this.serviceData = [];
+  this.categoryPieOptions = null;
+  this.drugPieOptions = null;
 
-        if (drugRes) this.drugData = drugRes.data || [];
-        if (otherItemsRes && otherItemsRes.data) {
-            this.serviceData = otherItemsRes.data.xlist || [];
-            this.diagnosisData = otherItemsRes.data.ylist || [];
-        }
-        if (categoryPieRes && categoryPieRes.data) {
-          this.categoryPieOptions = this.buildPieOptions('各费用品类占比', categoryPieRes.data.xlist, categoryPieRes.data.ylist);
-        }
-        if (drugPieRes && drugPieRes.data) {
-          this.drugPieOptions = this.buildPieOptions('各类药品费用占比', drugPieRes.data.xlist, drugPieRes.data.ylist);
-        }
+  try {
+    const drugPromise = getFeeReimbursementDrugs('1', this.selectedMember.id);
+    const otherItemsPromise = getFeeReimbursementOtherItems(this.selectedMember.id);
+    
+    // --- 这里是唯一的修改点 ---
+    // 1. 修正了饼图类型参数：'2' 用于品类，'1' 用于药品
+    // 2. 增加了缺失的 patientId 参数
+    const categoryPiePromise = getFeeDetailPieChart('2', this.selectedMember.id);
+    const drugPiePromise = getFeeDetailPieChart('1', this.selectedMember.id);
+    // --- 修改结束 ---
 
-      } catch (error) {
-        console.error('获取费用详情或图表数据失败:', error);
-      } finally {
-        this.detailsLoading = false;
-      }
-    },
+    const [ drugRes, otherItemsRes, categoryPieRes, drugPieRes ] = await Promise.all([
+      drugPromise, otherItemsPromise, categoryPiePromise, drugPiePromise
+    ]);
+
+    if (drugRes) this.drugData = drugRes.data || [];
+    if (otherItemsRes && otherItemsRes.data) {
+        this.serviceData = otherItemsRes.data.xlist || [];
+        this.diagnosisData = otherItemsRes.data.ylist || [];
+    }
+    // 修正了变量名和标题的对应关系
+    if (categoryPieRes && categoryPieRes.data) {
+      this.categoryPieOptions = this.buildPieOptions('各费用品类占比', categoryPieRes.data.xlist, categoryPieRes.data.ylist);
+    }
+    if (drugPieRes && drugPieRes.data) {
+      this.drugPieOptions = this.buildPieOptions('各类药品费用占比', drugPieRes.data.xlist, drugPieRes.data.ylist);
+    }
+
+  } catch (error) {
+    console.error('获取费用详情或图表数据失败:', error);
+  } finally {
+    this.detailsLoading = false;
+  }
+},
     buildPieOptions(title, labels, values) {
       if (!labels || !values || labels.length === 0) return null;
       const chartData = labels.map((label, index) => ({

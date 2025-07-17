@@ -1,4 +1,4 @@
-<!-- src/views/AccountManagement.vue (The Final, Corrected Version) -->
+<!-- src/views/AccountManagement.vue (Corrected Avatar Update Logic) -->
 <template>
   <div class="management-container">
     <div v-if="isLoading" class="loading-state">加载中...</div>
@@ -8,6 +8,7 @@
       
       <div class="card-body">
         <div class="avatar-section">
+          <!-- This logic is correct and does not need to change -->
           <img v-if="hasValidAvatar" :src="user.avatar" alt="用户头像" class="avatar-image" />
           <div v-else class="avatar-placeholder">{{ userInitial }}</div>
           <div class="avatar-overlay" @click="triggerFileUpload">
@@ -77,7 +78,9 @@ export default {
     };
   },
   computed: {
+    // This logic is also correct, it just needs the right data
     hasValidAvatar() {
+      // We also need to check this.user.avatar exists first
       return this.user && this.user.avatar && this.user.avatar.startsWith('http');
     },
     userInitial() {
@@ -89,6 +92,7 @@ export default {
   },
   methods: {
     async fetchUserData() {
+      // In App.vue, we now get the full user object, including the avatar.
       const storedUser = JSON.parse(localStorage.getItem('user'));
       if (!storedUser || !storedUser.id) {
         this.$router.push('/login');
@@ -97,10 +101,7 @@ export default {
 
       this.isLoading = true;
       try {
-        // **核心修正 1**: `getUserById` 现在直接返回被拦截器处理过的对象
         const response = await authApi.getUserById(storedUser.id);
-        
-        // **核心修正 2**: 直接从 `response.data` 中获取用户信息对象
         if (response.code === 1) {
           this.user = response.data;
         } else {
@@ -125,8 +126,25 @@ export default {
       try {
         const response = await authApi.uploadAvatar(formData);
         if (response.code === 1) {
-          this.user.avatar = response.data;
-          this.showFeedback('头像上传成功！', 'success'); // 使用新的反馈函数
+          const newAvatarUrl = response.data;
+          // Update the local component's avatar for immediate display on this page
+          this.user.avatar = newAvatarUrl;
+
+          // --- THIS IS THE CRITICAL FIX ---
+          // 1. Get the current user data from localStorage
+          const userInStorage = JSON.parse(localStorage.getItem('user') || '{}');
+          
+          // 2. Update its avatar property
+          userInStorage.avatar = newAvatarUrl;
+
+          // 3. Save it back to localStorage
+          localStorage.setItem('user', JSON.stringify(userInStorage));
+
+          // 4. Tell App.vue to refresh its user data
+          window.dispatchEvent(new CustomEvent('user-updated'));
+          // --- END OF FIX ---
+
+          this.showFeedback('头像上传成功！', 'success');
         } else {
           this.showError(response.msg || '头像上传失败');
         }
@@ -144,9 +162,13 @@ export default {
       try {
         await authApi.updateUser(payload);
         
-        // **重要**: 更新 localStorage 中的用户信息，确保顶栏头像和昵称能立即刷新
-        const updatedUser = { ...JSON.parse(localStorage.getItem('user')), userName: this.user.userName };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        // IMPROVEMENT: Update localStorage with all current user info (name, avatar, etc.)
+        const updatedUserForStorage = {
+          ...JSON.parse(localStorage.getItem('user')), // Keep old data like id, token
+          userName: this.user.userName,               // Add new name
+          avatar: this.user.avatar,                   // Add new avatar
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUserForStorage));
         
         this.newPassword = '';
         this.showSuccessModal = true;
@@ -156,19 +178,17 @@ export default {
     },
     closeSuccessModalAndNavigate() {
       this.showSuccessModal = false;
-      // 触发一个事件或使用其他方式通知App.vue刷新用户信息
+      // This event is now correctly fired after localStorage is updated
       window.dispatchEvent(new CustomEvent('user-updated'));
       this.$router.push('/');
     },
-    // 将两种反馈消息统一处理，避免重复代码
     showError(msg) {
       this.errorMessage = msg;
       setTimeout(() => { this.errorMessage = ''; }, 3000);
     },
     showFeedback(msg, type) {
-      // 临时使用 error message 的位置来显示成功消息
       if (type === 'success') {
-        this.errorMessage = msg; // 可以在这里改变样式，但暂时复用
+        this.errorMessage = msg;
         setTimeout(() => { this.errorMessage = ''; }, 3000);
       }
     }
@@ -177,6 +197,7 @@ export default {
 </script>
 
 <style scoped>
+/* All styles remain unchanged */
 .management-container {
   padding: 40px;
   display: flex;

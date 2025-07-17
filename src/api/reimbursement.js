@@ -75,10 +75,10 @@ export function getFeeReimbursementSummary(patientId) {
   })
 }
 
-// 确保 getFeeDetailPieChart 函数存在
-export function getFeeDetailPieChart(pieType) {
+export function getFeeDetailPieChart(pieType, patientId) { // 1. 增加 patientId 参数
   return service({
     url: `/expReimburse/fee/detail/${pieType}`,
-    method: 'get'
+    method: 'get',
+    params: { patientId } // 2. 将 patientId 作为查询参数发送
   });
 }

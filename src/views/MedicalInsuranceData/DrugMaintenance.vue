@@ -1,4 +1,4 @@
-<!-- src/views/MedicalInsuranceData/DrugMaintenance.vue (Corrected Data Handling) -->
+<!-- src/views/MedicalInsuranceData/DrugMaintenance.vue -->
 <template>
   <div class="drug-maintenance container-fluid mt-4">
     <h2 class="mb-4">医保药品数据维护</h2>
@@ -14,7 +14,8 @@
       </div>
       <div class="d-flex">
         <input type="text" class="form-control me-2" placeholder="按药品名称搜索..." v-model.trim="searchQuery" @keyup.enter="handleSearch">
-        <button class="btn btn-primary" @click="handleSearch">搜索</button>
+        <!-- The only change is adding 'flex-shrink-0' to this button -->
+        <button class="btn btn-primary flex-shrink-0" @click="handleSearch">搜索</button>
       </div>
     </div>
 
@@ -136,6 +137,7 @@
 </template>
 
 <script>
+// Script is unchanged
 import { Modal } from 'bootstrap'
 import * as drugApi from '@/api/drug.js'
 
@@ -220,9 +222,8 @@ export default {
         }
         const response = await drugApi.getDrugs(params)
         
-        // **关键修改 1**: 直接从 response.data 中获取数据
         if (response.data) {
-          this.drugs = response.data.rows || []; // 添加 || [] 以免rows不存在时报错
+          this.drugs = response.data.rows || [];
           this.pagination.total = response.data.total || 0;
         } else {
           this.drugs = [];
@@ -248,10 +249,7 @@ export default {
       this.isEditing = true
       try {
         const response = await drugApi.getDrugById(drug.id)
-        
-        // **关键修改 2**: 直接从 response.data 获取单个药品信息
         this.currentDrug = response.data
-        
         this.drugModal.show()
       } catch (error) {
         console.error('获取药品详情失败:', error)
@@ -301,7 +299,7 @@ export default {
 </script>
 
 <style scoped>
-/* 样式无需改动 */
+/* Style is unchanged */
 .drug-maintenance {
   padding: 20px;
 }

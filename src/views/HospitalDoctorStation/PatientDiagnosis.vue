@@ -1,10 +1,9 @@
-<!-- src/views/HospitalDoctorStation/PatientDiagnosis.vue (Corrected) -->
+<!-- src/views/HospitalDoctorStation/PatientDiagnosis.vue (最终修正版) -->
 <template>
   <div class="patient-diagnosis container-fluid mt-4">
     <h2 class="mb-4">患者诊断</h2>
 
     <div class="row">
-      <!-- 分栏已调整为 col-md-3 -->
       <div class="col-md-3">
         <div class="card">
           <div class="card-header">
@@ -24,7 +23,6 @@
         </div>
       </div>
 
-      <!-- 分栏已调整为 col-md-9 -->
       <div class="col-md-9">
         <div class="card">
           <div class="card-header">
@@ -35,14 +33,14 @@
               请先从左侧选择一位患者
             </div>
             <div v-else>
-              <!-- Main Diagnosis Form -->
               <form @submit.prevent="saveCurrentDiagnosis">
                 <div class="mb-3">
                   <label for="diseaseType" class="form-label">诊断类型</label>
-                  <select class="form-select" id="diseaseType" v-model="currentDiagnosis.diseaseType" required>
-                      <option value="admission">入院诊断</option>
-                      <option value="main">主要诊断</option>
-                      <option value="other">其他诊断</option>
+                  <!-- 1. 关键修改: 将 value 改为数字，并使用 v-model.number -->
+                  <select class="form-select" id="diseaseType" v-model.number="currentDiagnosis.diseaseType" required>
+                      <option value="1">入院诊断</option>
+                      <option value="2">主要诊断</option>
+                      <option value="3">其他诊断</option>
                   </select>
                 </div>
 
@@ -98,7 +96,8 @@ export default {
         patientId: null,
         diseaseId: null,
         orderTime: this.getCurrentDateTime(),
-        diseaseType: 'main'
+        // 2. 关键修改: 默认值改为数字 2 (代表主要诊断)
+        diseaseType: 2 
       },
       diseaseSearchQuery: '',
       userTypedQuery: '',
@@ -116,13 +115,14 @@ export default {
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       return now.toISOString().slice(0, 16);
     },
+    formatDateForBackend(localDateTimeString) {
+      if (!localDateTimeString) return null;
+      return localDateTimeString.replace('T', ' ') + ':00';
+    },
     async fetchPatients() {
       try {
         const response = await patientOrdersApi.getAdmittedPatientsForOrders();
-        
-        // **核心修正 1**: 直接从 response.data 获取患者列表
         this.patients = response.data || [];
-
       } catch (error) {
         console.error('获取患者列表失败:', error);
       }
@@ -147,10 +147,7 @@ export default {
       }
       try {
         const response = await diagnosisApi.searchDiseases({ diseaseName: this.userTypedQuery });
-
-        // **核心修正 2**: 直接从 response.data 获取疾病搜索结果
         this.diseaseSearchResults = response.data || [];
-
         this.showResults = true;
       } catch (error) {
         console.error('搜索疾病失败:', error);
@@ -207,12 +204,18 @@ export default {
         return;
       }
       
-      const payload = { ...this.currentDiagnosis, patientId: this.selectedPatient.id };
+      const payload = { 
+        patientId: this.selectedPatient.id,
+        diseaseId: this.currentDiagnosis.diseaseId,
+        orderTime: this.formatDateForBackend(this.currentDiagnosis.orderTime),
+        diseaseType: this.currentDiagnosis.diseaseType
+      };
       
+      // 3. 关键修改: 使用数字作为 key 来选择正确的 API 函数
       const apiCallMap = {
-        admission: diagnosisApi.saveAdmissionDiagnosis,
-        main: diagnosisApi.saveMainDiagnosis,
-        other: diagnosisApi.saveOtherDiagnosis,
+        1: diagnosisApi.saveAdmissionDiagnosis,
+        2: diagnosisApi.saveMainDiagnosis,
+        3: diagnosisApi.saveOtherDiagnosis,
       };
 
       const apiCall = apiCallMap[this.currentDiagnosis.diseaseType];
@@ -235,7 +238,8 @@ export default {
         patientId: this.selectedPatient ? this.selectedPatient.id : null,
         diseaseId: null,
         orderTime: this.getCurrentDateTime(),
-        diseaseType: 'main'
+        // 4. 关键修改: 重置时同样使用数字 2
+        diseaseType: 2
       };
       this.diseaseSearchQuery = '';
       this.userTypedQuery = '';

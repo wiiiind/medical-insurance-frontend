@@ -1,4 +1,4 @@
-<!-- src/views/MedicalInsuranceData/MedicalServiceMaintenance.vue (Corrected) -->
+<!-- src/views/MedicalInsuranceData/MedicalServiceMaintenance.vue -->
 <template>
   <div class="medical-service-maintenance container-fluid mt-4">
     <h2 class="mb-4">医疗服务设施数据维护</h2>
@@ -15,7 +15,8 @@
       </div>
       <div class="d-flex">
         <input type="text" class="form-control me-2" placeholder="按服务名称搜索..." v-model.trim="searchQuery" @keyup.enter="handleSearch">
-        <button class="btn btn-primary" @click="handleSearch">搜索</button>
+        <!-- The only change is adding 'flex-shrink-0' to this button -->
+        <button class="btn btn-primary flex-shrink-0" @click="handleSearch">搜索</button>
       </div>
     </div>
 
@@ -146,6 +147,7 @@
 </template>
 
 <script>
+// Script is unchanged
 import { Modal } from 'bootstrap'
 import * as medicalServiceApi from '@/api/medicalService.js'
 
@@ -232,7 +234,6 @@ export default {
         }
         const response = await medicalServiceApi.getMedicalServices(params)
         
-        // **核心修正 1**: 直接从 response.data 中获取分页数据
         if (response.data) {
           this.services = response.data.rows || [];
           this.pagination.total = response.data.total || 0;
@@ -271,10 +272,7 @@ export default {
       this.isEditing = true
       try {
         const response = await medicalServiceApi.getMedicalServiceById(service.id)
-
-        // **核心修正 2**: 直接从 response.data 获取单个服务信息
         this.currentService = response.data
-        
         this.serviceModal.show()
       } catch (error) {
         console.error('获取医疗服务详情失败:', error)
@@ -324,6 +322,7 @@ export default {
 </script>
 
 <style scoped>
+/* Style is unchanged */
 .medical-service-maintenance {
   padding: 20px;
 }
